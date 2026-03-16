@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>《阿含經》白話計畫</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  
+  <link rel="stylesheet" href="lib/themes/vue.css">
+
+  <style>
+    :root {
+      /* 側邊欄與背景配色 */
+      --background: #000000;
+      --base-color: #b59a4d; /* 暗黃色，類似陳舊紙張的顏色 */
+      --theme-color: #d4af37; /* 主題色，金黃色 */
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--base-color);
+    }
+
+    /* 側邊欄樣式修正 */
+    .sidebar {
+      background-color: #0a0a0a;
+      border-right: 1px solid #222;
+      color: var(--base-color);
+    }
+
+    .sidebar-nav li a {
+      color: var(--base-color);
+    }
+
+    /* 標題顏色 */
+    h1, h2, h3, h4 {
+      color: #d4af37 !important;
+    }
+
+    /* 連結顏色（減少刺眼的藍色） */
+    a {
+      color: #8b732e;
+    }
+
+    /* Tabs 插件配色修正，確保在黑底下清晰 */
+    .docsify-tabs__tab {
+      background: #111 !important;
+      color: #777 !important;
+      border: 1px solid #222 !important;
+    }
+
+    .docsify-tabs__tab--active {
+      background: #000 !important;
+      color: #d4af37 !important;
+      border-bottom: 2px solid #d4af37 !important;
+    }
+
+    /* 搜尋框樣式 */
+    .search input {
+      background: #111 !important;
+      color: var(--base-color) !important;
+      border: 1px solid #333 !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">載入中...</div>
+  <script>
+    window.$docsify = {
+      name: '《阿含經》白話計畫',
+      repo: '', // 如果有 GitHub 倉庫連結可以填在這裡
+      loadSidebar: true,
+      loadNavbar: true,
+      subMaxLevel: 2,
+      auto2top: true,
+      
+      // 搜尋插件配置
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: '搜尋經文...',
+        noData: '找不到結果',
+        depth: 6
+      },
+
+      // Tabs 插件配置
+      tabs: {
+        persist: true,      // 重新整理後保持上次選取的頁籤
+        sync: false,        // 頁籤切換不連動
+        theme: 'classic',
+        tabComments: true,
+        tabHeadings: true
+      }
+    };
+  </script>
+
+  <script src="lib/docsify.min.js"></script>
+
+  <script src="lib/plugins/search.min.js"></script>
+  <script src="lib/plugins/docsify-tabs.min.js"></script>
+
+</body>
+</html>
