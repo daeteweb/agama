@@ -65,19 +65,12 @@
 </head>
 <body>
   <div id="app">載入中...</div>
-  <script>
-window.$docsify = {
-  name: '《阿含經》白話計畫',
-  // 1. 回歸簡單：直接用 true 或是 './_sidebar.md'
-  loadSidebar: true, 
-  subMaxLevel: 2,
-  auto2top: true,
-  // 2. 核心修正：在 GitHub Pages 子路徑，不要設 basePath 或 relativeURLs
-  // 讓 Docsify 自動根據 index.html 的位置去抓檔案
-  alias: {
-    '/.*/_sidebar.md': '/_sidebar.md'
-  }
-};
+<script>
+    window.$docsify = {
+      name: '《阿含經》白話計畫',
+      loadSidebar: true,
+      subMaxLevel: 2,
+      auto2top: true,
       
       // 搜尋插件配置
       search: {
@@ -90,8 +83,8 @@ window.$docsify = {
 
       // Tabs 插件配置
       tabs: {
-        persist: true,      // 重新整理後保持上次選取的頁籤
-        sync: false,        // 頁籤切換不連動
+        persist: true,
+        sync: false,
         theme: 'classic',
         tabComments: true,
         tabHeadings: true
@@ -99,9 +92,9 @@ window.$docsify = {
     };
   </script>
 
-<script src="lib/docsify.min.js"></script>
-<script src="lib/plugins/search.min.js"></script>
-<script src="lib/plugins/docsify-tabs.min.js"></script>
+  <script src="lib/docsify.min.js"></script>
+  <script src="lib/plugins/search.min.js"></script>
+  <script src="lib/plugins/docsify-tabs.min.js"></script>
 
 </body>
 </html>
