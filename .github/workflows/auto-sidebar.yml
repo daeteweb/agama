@@ -3,31 +3,61 @@ name: Auto Generate Sidebar
 on:
   push:
     paths:
-      - 'suttas/**' # 只有當 suttas 資料夾有變動時才觸發
+      - 'suttas/**'
+      - 'README.md'
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Generate Sidebar
         run: |
-          printf "* [首頁](README.md)\n\n" > _sidebar.md
-          printf "* 雜阿含經\n" >> _sidebar.md
-          # 修正：確保路徑不會重複，並排除 README.md
-          find suttas -name "*.md" | sort | while read file; do
-            # 抓取第一行作為標題
-            title=$(head -n 1 "$file" | sed 's/[#*]//g' | xargs)
-            # 確保產出的連結格式為 [標題](suttas/檔名.md)
-            printf "  * [%s](%s)\n" "$title" "$file" >> _sidebar.md
+          # 1. 建立初始內容與首頁連結
+          printf "* [🏠 首頁](README.md)\n\n" > _sidebar.md
+
+          # 2. 定義要掃描的分類（資料夾名稱 | 顯示名稱）
+          # 格式： 資料夾路徑:顯示標題
+          categories=("suttas/sa:雜阿含經" "suttas/ma:中阿含經" "suttas/da:長阿含經")
+
+          for entry in "${categories[@]}"; do
+            path="${entry%%:*}"
+            title="${entry#*:}"
+
+            # 寫入分類大標題
+            printf "* **$title**\n" >> _sidebar.md
+
+            # 檢查資料夾是否存在且不為空
+            if [ -d "$path" ] && [ "$(ls -A $path/*.md 2>/dev/null)" ]; then
+              # 尋找該資料夾下的所有 .md 檔，依檔名排序
+              find "$path" -maxdepth 1 -name "*.md" | sort | while read file; do
+                # 抓取檔案第一行作為顯示文字（去除 # 號）
+                display_name=$(head -n 1 "$file" | sed 's/[#*]//g' | xargs)
+                # 如果第一行沒抓到標題，就用檔名代替
+                if [ -z "$display_name" ]; then
+                  display_name=$(basename "$file" .md)
+                fi
+                # 寫入縮排後的清單項目
+                printf "  * [$display_name]($file)\n" >> _sidebar.md
+              done
+            else
+              # 如果資料夾沒檔案，留一個提示（可選）
+              printf "  * (整理中...)\n" >> _sidebar.md
+            fi
+            printf "\n" >> _sidebar.md
           done
 
-      - name: Commit and Push changes
+      - name: Commit and Push Changes
         run: |
-          git config --global user.name "Github Action"
-          git config --global user.email "action@github.com"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add _sidebar.md
-          git commit -m "Auto-update sidebar [skip ci]" || exit 0
-          git push
+          # 只有在內容有變動時才提交，避免無限循環
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update sidebar with categories [skip ci]" && git push)
