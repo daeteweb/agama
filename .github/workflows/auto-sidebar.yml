@@ -20,10 +20,10 @@ jobs:
 
       - name: Generate Sidebar
         run: |
-          # 1. 建立初始內容與首頁連結
+          # 1. 建立初始內容
           printf "* [🏠 首頁](README.md)\n\n" > _sidebar.md
 
-          # 2. 定義要掃描的分類（資料夾名稱 | 顯示名稱）
+          # 2. 定義要處理的分類
           # 格式： 資料夾路徑:顯示標題
           categories=("suttas/sa:雜阿含經" "suttas/ma:中阿含經" "suttas/da:長阿含經")
 
@@ -31,24 +31,33 @@ jobs:
             path="${entry%%:*}"
             title="${entry#*:}"
 
-            # 寫入分類大標題
             printf "* **$title**\n" >> _sidebar.md
 
-            # 檢查資料夾是否存在且不為空
             if [ -d "$path" ] && [ "$(ls -A $path/*.md 2>/dev/null)" ]; then
-              # 尋找該資料夾下的所有 .md 檔，依檔名排序
-              find "$path" -maxdepth 1 -name "*.md" | sort | while read file; do
-                # 抓取檔案第一行作為顯示文字（去除 # 號）
+              count=0
+              # 取得排序後的檔案清單
+              files=$(find "$path" -maxdepth 1 -name "*.md" | sort)
+              
+              for file in $files; do
+                # 每 100 筆建立一個子分類標籤
+                if [ $((count % 100)) -eq 0 ]; then
+                  start=$((count + 1))
+                  end=$((count + 100))
+                  printf "  * **第 $start - $end 經**\n" >> _sidebar.md
+                fi
+
+                # 抓取檔案標題
                 display_name=$(head -n 1 "$file" | sed 's/[#*]//g' | xargs)
-                # 如果第一行沒抓到標題，就用檔名代替
                 if [ -z "$display_name" ]; then
                   display_name=$(basename "$file" .md)
                 fi
-                # 寫入縮排後的清單項目
-                printf "  * [$display_name]($file)\n" >> _sidebar.md
+                
+                # 寫入檔案連結（注意：這裡縮排兩次，讓它在「第 X-Y 經」下方）
+                printf "    * [$display_name]($file)\n" >> _sidebar.md
+                
+                count=$((count + 1))
               done
             else
-              # 如果資料夾沒檔案，留一個提示（可選）
               printf "  * (整理中...)\n" >> _sidebar.md
             fi
             printf "\n" >> _sidebar.md
@@ -59,5 +68,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add _sidebar.md
-          # 只有在內容有變動時才提交，避免無限循環
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update sidebar with categories [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update sidebar with virtual grouping [skip ci]" && git push)
