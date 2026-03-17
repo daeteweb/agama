@@ -68,13 +68,15 @@
   <script>
 window.$docsify = {
   name: '《阿含經》白話計畫',
-  loadSidebar: true,
+  // loadSidebar: true,
+  loadSidebar: '_sidebar.md', // 直接指定檔案名稱，而不是只寫 true
   subMaxLevel: 2,
   auto2top: true,
   // 核心修正：明確告訴 Docsify，所有檔案都在當前目錄
   relativeURLs: true, 
   // 確保首頁正確載入
   homepage: 'README.md',
+};
 };
       
       // 搜尋插件配置
