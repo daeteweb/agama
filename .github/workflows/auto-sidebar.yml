@@ -14,16 +14,14 @@ jobs:
 
       - name: Generate Sidebar
         run: |
-          echo "* [首頁](README.md)" > _sidebar.md
-          echo "" >> _sidebar.md
-          echo "* 雜阿含經" >> _sidebar.md
-          # 掃描 suttas 資料夾下的 md 檔案並按名稱排序
+          printf "* [首頁](README.md)\n\n" > _sidebar.md
+          printf "* 雜阿含經\n" >> _sidebar.md
+          # 修正：確保路徑不會重複，並排除 README.md
           find suttas -name "*.md" | sort | while read file; do
-            # 取得檔名作為基礎
-            filename=$(basename "$file" .md)
-            # 讀取檔案第一行作為顯示名稱（去掉 Markdown 符號）
+            # 抓取第一行作為標題
             title=$(head -n 1 "$file" | sed 's/[#*]//g' | xargs)
-            echo "  * [$title]($file)" >> _sidebar.md
+            # 確保產出的連結格式為 [標題](suttas/檔名.md)
+            printf "  * [%s](%s)\n" "$title" "$file" >> _sidebar.md
           done
 
       - name: Commit and Push changes
