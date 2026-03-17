@@ -111,6 +111,10 @@
     window.$docsify = {
       name: '《阿含經》白話計畫',
       loadSidebar: true,
+      alias: {
+    // 核心修正：不論在哪個路徑，都強制指向根目錄的 _sidebar.md
+    '/.*/_sidebar.md': '/_sidebar.md'
+      },
       subMaxLevel: 2,
       auto2top: true,
       
@@ -134,19 +138,29 @@
     };
   </script>
   <script>
-  let currentSize = 18; // 初始字體大小
+  // 1. 初始化：嘗試從瀏覽器記憶中讀取，若無則預設 18
+  let currentSize = parseInt(localStorage.getItem('agama-font-size')) || 18;
+  
+  // 頁面載入時立即套用
+  applyFontSize(currentSize);
 
   function changeFontSize(delta) {
     currentSize += delta;
-    // 限制最小 12px，最大 40px，避免畫面崩壞
     if (currentSize < 12) currentSize = 12;
     if (currentSize > 40) currentSize = 40;
-    document.documentElement.style.setProperty('--base-font-size', currentSize + 'px');
+    applyFontSize(currentSize);
+    // 2. 儲存設定
+    localStorage.setItem('agama-font-size', currentSize);
   }
 
   function resetFontSize() {
     currentSize = 18;
-    document.documentElement.style.setProperty('--base-font-size', currentSize + 'px');
+    applyFontSize(currentSize);
+    localStorage.removeItem('agama-font-size');
+  }
+
+  function applyFontSize(size) {
+    document.documentElement.style.setProperty('--base-font-size', size + 'px');
   }
 </script>
 
