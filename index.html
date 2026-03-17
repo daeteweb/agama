@@ -61,10 +61,52 @@
       color: var(--base-color) !important;
       border: 1px solid #333 !important;
     }
+    /* 設定字體大小的變數與控制按鈕樣式 */
+:root {
+  --base-font-size: 16px; /* 預設大小 */
+}
+
+.markdown-section {
+  font-size: var(--base-font-size) !important;
+}
+
+/* 縮放按鈕的浮動面板 */
+.font-control {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  display: flex;
+  gap: 10px;
+  background: rgba(20, 20, 20, 0.8);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.font-control button {
+  background: #1a1a1a;
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  padding: 5px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.font-control button:hover {
+  background: #d4af37;
+  color: #000;
+}
   </style>
 </head>
 <body>
   <div id="app">載入中...</div>
+  <div class="font-control">
+  <button onclick="changeFontSize(2)">A+</button>
+  <button onclick="changeFontSize(-2)">A-</button>
+  <button onclick="resetFontSize()">重置</button>
+</div>
 <script>
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -91,6 +133,22 @@
       }
     };
   </script>
+  <script>
+  let currentSize = 18; // 初始字體大小
+
+  function changeFontSize(delta) {
+    currentSize += delta;
+    // 限制最小 12px，最大 40px，避免畫面崩壞
+    if (currentSize < 12) currentSize = 12;
+    if (currentSize > 40) currentSize = 40;
+    document.documentElement.style.setProperty('--base-font-size', currentSize + 'px');
+  }
+
+  function resetFontSize() {
+    currentSize = 18;
+    document.documentElement.style.setProperty('--base-font-size', currentSize + 'px');
+  }
+</script>
 
   <script src="lib/docsify.min.js"></script>
   <script src="lib/plugins/search.min.js"></script>
