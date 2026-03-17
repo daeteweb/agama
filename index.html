@@ -68,15 +68,15 @@
   <script>
 window.$docsify = {
   name: '《阿含經》白話計畫',
-  // loadSidebar: true,
-  loadSidebar: '_sidebar.md', // 直接指定檔案名稱，而不是只寫 true
+  // 1. 回歸簡單：直接用 true 或是 './_sidebar.md'
+  loadSidebar: true, 
   subMaxLevel: 2,
   auto2top: true,
-  // 核心修正：明確告訴 Docsify，所有檔案都在當前目錄
-  relativeURLs: true, 
-  // 確保首頁正確載入
-  homepage: 'README.md',
-  routerMode: 'hash', // 確保使用 hash 模式
+  // 2. 核心修正：在 GitHub Pages 子路徑，不要設 basePath 或 relativeURLs
+  // 讓 Docsify 自動根據 index.html 的位置去抓檔案
+  alias: {
+    '/.*/_sidebar.md': '/_sidebar.md'
+  }
 };
       
       // 搜尋插件配置
