@@ -71,9 +71,9 @@ window.$docsify = {
   loadSidebar: true,
   subMaxLevel: 2,
   auto2top: true,
-  // 核心修正：將此設為空或刪除，讓 Docsify 使用相對路徑
-  basePath: '', 
-  // 確保首頁名稱正確
+  // 核心修正：明確告訴 Docsify，所有檔案都在當前目錄
+  relativeURLs: true, 
+  // 確保首頁正確載入
   homepage: 'README.md',
 };
       
