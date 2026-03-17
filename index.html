@@ -66,16 +66,16 @@
 <body>
   <div id="app">載入中...</div>
   <script>
-      window.$docsify = {
-        name: '《阿含經》白話計畫',
-        loadSidebar: true,
-        subMaxLevel: 2,
-        auto2top: true,
-        // 核心修正：明確指定首頁檔案名稱，避免 404
-        homepage: 'README.md', 
-        // 核心修正：這能確保 Docsify 正確找到 _sidebar.md
-        basePath: './', 
-      };
+window.$docsify = {
+  name: '《阿含經》白話計畫',
+  loadSidebar: true,
+  subMaxLevel: 2,
+  auto2top: true,
+  // 核心修正：將此設為空或刪除，讓 Docsify 使用相對路徑
+  basePath: '', 
+  // 確保首頁名稱正確
+  homepage: 'README.md',
+};
       
       // 搜尋插件配置
       search: {
