@@ -127,16 +127,17 @@
       },
       subMaxLevel: 2,
       auto2top: true,
-      markdown: {
-      smartypants: true, // 自動處理標點符號的渲染邏輯
-      renderer: {
-        // 修正粗體與全形冒號連在一起時的解析問題
-        text: function(text) {
-          // 這個邏輯會自動在粗體結尾與冒號之間建立識別，確保正常渲染
-          return text;
+
+      // 修正中文粗體渲染：在每頁內容渲染前，先用正則把 **文字** 換成 <strong>文字</strong>
+      // 原因：docsify 內建的 marked 對中文字元邊界判斷有 bug，導致粗體無法解析
+      plugins: [
+        function(hook) {
+          hook.beforeEach(function(content) {
+            // 將 **任意內容** 轉為 <strong>，支援中文、英文、符號混排
+            return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+          });
         }
-      }
-    }
+      ],
       
       // 搜尋插件配置
       search: {
