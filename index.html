@@ -125,8 +125,16 @@
         // 核心修正：不論在哪個路徑，都強制指向根目錄的 _sidebar.md
         '/.*/_sidebar.md': '/_sidebar.md'
       },
-      subMaxLevel: 2,
+      repo: '',
+      loadSidebar: true,
       auto2top: true,
+      subMaxLevel: 3,
+      // 強化 Markdown 解析邏輯
+      markdown: {
+        gfm: true, // 開啟 GitHub Flavored Markdown 模式
+        breaks: true,
+        smartLists: true,
+        smartypants: true
       
       // 搜尋插件配置
       search: {
