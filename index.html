@@ -40,7 +40,7 @@
 
     /* 連結顏色（減少刺眼的藍色） */
     a {
-      color: #ffffff;
+      color: #8b732e;
     }
 
     /* Tabs 插件配色修正，確保在黑底下清晰 */
@@ -125,8 +125,7 @@
         // 核心修正：不論在哪個路徑，都強制指向根目錄的 _sidebar.md
         '/.*/_sidebar.md': '/_sidebar.md'
       },
-      repo: '',
-      loadSidebar: true,
+//      subMaxLevel: 2,
       auto2top: true,
       subMaxLevel: 3,
       // 強化 Markdown 解析邏輯
@@ -135,6 +134,7 @@
         breaks: true,
         smartLists: true,
         smartypants: true
+      }
       
       // 搜尋插件配置
       search: {
