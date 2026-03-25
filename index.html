@@ -14,6 +14,7 @@
       --background: #000000;
       --base-color: #b59a4d; /* 暗黃色，類似陳舊紙張的顏色 */
       --theme-color: #d4af37; /* 主題色，金黃色 */
+      --base-font-size: 16px; /* 預設大小 */
     }
 
     body {
@@ -32,9 +33,9 @@
       color: var(--base-color);
     }
 
-    /* 標題顏色 */
+    /* 標題顏色 → 改為白色 */
     h1, h2, h3, h4 {
-      color: #d4af37 !important;
+      color: #ffffff !important;
     }
 
     /* 連結顏色（減少刺眼的藍色） */
@@ -61,59 +62,68 @@
       color: var(--base-color) !important;
       border: 1px solid #333 !important;
     }
-    /* 設定字體大小的變數與控制按鈕樣式 */
-:root {
-  --base-font-size: 16px; /* 預設大小 */
-}
 
-.markdown-section {
-  font-size: var(--base-font-size) !important;
-}
+    .markdown-section {
+      font-size: var(--base-font-size) !important;
+    }
 
-/* 縮放按鈕的浮動面板 */
-.font-control {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 999;
-  display: flex;
-  gap: 10px;
-  background: rgba(20, 20, 20, 0.8);
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #333;
-}
+    /* 浮動控制面板（字體縮放 + 換頁） */
+    .font-control {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      gap: 10px;
+      background: rgba(20, 20, 20, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
 
-.font-control button {
-  background: #1a1a1a;
-  color: #d4af37;
-  border: 1px solid #d4af37;
-  padding: 5px 12px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 14px;
-}
+    .font-control button {
+      background: #1a1a1a;
+      color: #d4af37;
+      border: 1px solid #d4af37;
+      padding: 5px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+    }
 
-.font-control button:hover {
-  background: #d4af37;
-  color: #000;
-}
+    .font-control button:hover {
+      background: #d4af37;
+      color: #000;
+    }
+
+    /* 分隔線，視覺上區隔字體按鈕與換頁按鈕 */
+    .font-control .divider {
+      width: 1px;
+      background: #444;
+      margin: 0 2px;
+    }
   </style>
 </head>
 <body>
   <div id="app">載入中...</div>
+
+  <!-- 浮動控制面板 -->
   <div class="font-control">
-  <button onclick="changeFontSize(2)">A+</button>
-  <button onclick="changeFontSize(-2)">A-</button>
-  <button onclick="resetFontSize()">重置</button>
-</div>
-<script>
+    <button onclick="changeFontSize(2)" title="放大文字">A+</button>
+    <button onclick="changeFontSize(-2)" title="縮小文字">A-</button>
+    <button onclick="resetFontSize()" title="重置文字大小">重置</button>
+    <div class="divider"></div>
+    <button onclick="goPrevPage()" title="上一篇">◀ 上一篇</button>
+    <button onclick="goNextPage()" title="下一篇">下一篇 ▶</button>
+  </div>
+
+  <script>
     window.$docsify = {
       name: '《阿含經》白話計畫',
       loadSidebar: true,
       alias: {
-    // 核心修正：不論在哪個路徑，都強制指向根目錄的 _sidebar.md
-    '/.*/_sidebar.md': '/_sidebar.md'
+        // 核心修正：不論在哪個路徑，都強制指向根目錄的 _sidebar.md
+        '/.*/_sidebar.md': '/_sidebar.md'
       },
       subMaxLevel: 2,
       auto2top: true,
@@ -137,32 +147,61 @@
       }
     };
   </script>
+
   <script>
-  // 1. 初始化：嘗試從瀏覽器記憶中讀取，若無則預設 18
-  let currentSize = parseInt(localStorage.getItem('agama-font-size')) || 18;
-  
-  // 頁面載入時立即套用
-  applyFontSize(currentSize);
-
-  function changeFontSize(delta) {
-    currentSize += delta;
-    if (currentSize < 12) currentSize = 12;
-    if (currentSize > 40) currentSize = 40;
+    /* ── 字體大小控制 ── */
+    let currentSize = parseInt(localStorage.getItem('agama-font-size')) || 18;
     applyFontSize(currentSize);
-    // 2. 儲存設定
-    localStorage.setItem('agama-font-size', currentSize);
-  }
 
-  function resetFontSize() {
-    currentSize = 18;
-    applyFontSize(currentSize);
-    localStorage.removeItem('agama-font-size');
-  }
+    function changeFontSize(delta) {
+      currentSize = Math.min(40, Math.max(12, currentSize + delta));
+      applyFontSize(currentSize);
+      localStorage.setItem('agama-font-size', currentSize);
+    }
 
-  function applyFontSize(size) {
-    document.documentElement.style.setProperty('--base-font-size', size + 'px');
-  }
-</script>
+    function resetFontSize() {
+      currentSize = 18;
+      applyFontSize(currentSize);
+      localStorage.removeItem('agama-font-size');
+    }
+
+    function applyFontSize(size) {
+      document.documentElement.style.setProperty('--base-font-size', size + 'px');
+    }
+
+    /* ── 上一篇 / 下一篇 ── */
+    // 從側邊欄收集所有連結，找到目前位置後切換
+    function getSidebarLinks() {
+      // docsify 的側邊欄連結都在 .sidebar-nav 裡
+      return Array.from(document.querySelectorAll('.sidebar-nav a'))
+        .filter(a => a.href && !a.href.endsWith('#'));
+    }
+
+    function getCurrentIndex(links) {
+      const current = location.href;
+      return links.findIndex(a => a.href === current);
+    }
+
+    function goNextPage() {
+      const links = getSidebarLinks();
+      const idx = getCurrentIndex(links);
+      if (idx !== -1 && idx < links.length - 1) {
+        links[idx + 1].click();
+      } else if (idx === links.length - 1) {
+        alert('已經是最後一篇了！');
+      }
+    }
+
+    function goPrevPage() {
+      const links = getSidebarLinks();
+      const idx = getCurrentIndex(links);
+      if (idx > 0) {
+        links[idx - 1].click();
+      } else if (idx === 0) {
+        alert('已經是第一篇了！');
+      }
+    }
+  </script>
 
   <script src="lib/docsify.min.js"></script>
   <script src="lib/plugins/search.min.js"></script>
