@@ -9,138 +9,254 @@
   <link rel="stylesheet" href="lib/themes/vue.css">
 
   <style>
+    /* ══════════════════════════════════════
+       全域色彩變數
+    ══════════════════════════════════════ */
     :root {
-      /* 側邊欄與背景配色 */
-      --background: #000000;
-      --base-color: #b59a4d; /* 暗黃色，類似陳舊紙張的顏色 */
-      --theme-color: #d4af37; /* 主題色，金黃色 */
-      --base-font-size: 16px; /* 預設大小 */
+      --background:      #000000;
+      --base-color:      #b59a4d;
+      --theme-color:     #d4af37;
+      --base-font-size:  18px;
+      --toolbar-height:  52px;
+    }
+
+    /* ══════════════════════════════════════
+       消滅所有深藍色：覆蓋 vue.css 的預設值
+       vue.css 大量使用 #34495e / #2c3e50（深藍）當文字色
+    ══════════════════════════════════════ */
+    body,
+    .markdown-section,
+    .markdown-section p,
+    .markdown-section li,
+    .markdown-section td,
+    .markdown-section th,
+    .markdown-section blockquote,
+    .markdown-section blockquote p,
+    .content,
+    p, li, td, th, span, label {
+      color: var(--base-color) !important;
     }
 
     body {
       background-color: var(--background);
-      color: var(--base-color);
     }
 
-    /* 側邊欄樣式修正 */
-    .sidebar {
-      background-color: #0a0a0a;
-      border-right: 1px solid #222;
-      color: var(--base-color);
-    }
-
-    .sidebar-nav li a {
-      color: var(--base-color);
-    }
-
-    /* 標題顏色 → 改為白色 */
-    h1, h2, h3, h4 {
+    /* 標題全部白色 */
+    h1, h2, h3, h4, h5, h6,
+    .markdown-section h1,
+    .markdown-section h2,
+    .markdown-section h3,
+    .markdown-section h4 {
       color: #ffffff !important;
     }
 
-    /* 連結顏色（減少刺眼的藍色） */
-    a {
-/*      color: #8b732e; */
-      color: #ffffff;
+    /* 連結：金棕色，避免深藍 */
+    a, .markdown-section a {
+      color: #c8a84b !important;
     }
-
-    /* Tabs 插件配色修正，確保在黑底下清晰 */
-    .docsify-tabs__tab {
-      background: #111 !important;
-      color: #777 !important;
-      border: 1px solid #222 !important;
-    }
-
-    .docsify-tabs__tab--active {
-      background: #000 !important;
+    a:hover, .markdown-section a:hover {
       color: #d4af37 !important;
-      border-bottom: 2px solid #d4af37 !important;
     }
 
-    /* 搜尋框樣式 */
+    /* 程式碼區塊 */
+    .markdown-section code,
+    .markdown-section pre code {
+      color: #e0c97a !important;
+      background: #111 !important;
+    }
+    .markdown-section pre {
+      background: #111 !important;
+    }
+
+    /* ── 側邊欄 ── */
+    .sidebar {
+      background-color: #0a0a0a !important;
+      border-right: 1px solid #222 !important;
+    }
+    .sidebar-nav li a,
+    .sidebar-nav li span,
+    .sidebar ul li a {
+      color: var(--base-color) !important;
+    }
+    .sidebar-nav li.active > a,
+    .sidebar-nav li > a.active {
+      color: #d4af37 !important;
+      border-right: 2px solid #d4af37;
+    }
+    .app-name, .app-name a {
+      color: #d4af37 !important;
+    }
+
+    /* ── 搜尋框 ── */
     .search input {
       background: #111 !important;
       color: var(--base-color) !important;
       border: 1px solid #333 !important;
     }
+    .search input::placeholder {
+      color: #555 !important;
+    }
+    .search .results-panel {
+      background: #0d0d0d !important;
+      border: 1px solid #333 !important;
+    }
+    .search .results-panel a {
+      border-bottom: 1px solid #222 !important;
+    }
+    .search .results-panel .matching-post h2 {
+      color: #ffffff !important;
+    }
+    .search .results-panel .matching-post p {
+      color: var(--base-color) !important;
+    }
 
+    /* ── Tabs 插件 ── */
+    .docsify-tabs__tab {
+      background: #111 !important;
+      color: #777 !important;
+      border: 1px solid #222 !important;
+    }
+    .docsify-tabs__tab--active {
+      background: #000 !important;
+      color: #d4af37 !important;
+      border-bottom: 2px solid #d4af37 !important;
+    }
+    .docsify-tabs__content {
+      background: #0a0a0a !important;
+      border: 1px solid #222 !important;
+      color: var(--base-color) !important;
+    }
+
+    /* ── 表格 ── */
+    .markdown-section table tr {
+      background: #0d0d0d !important;
+      border-top: 1px solid #333 !important;
+    }
+    .markdown-section table tr:nth-child(2n) {
+      background: #111 !important;
+    }
+    .markdown-section table th,
+    .markdown-section table td {
+      border: 1px solid #333 !important;
+    }
+
+    /* ── blockquote ── */
+    .markdown-section blockquote {
+      border-left: 4px solid #d4af37 !important;
+      background: #0d0d0d !important;
+    }
+
+    /* ══════════════════════════════════════
+       主內容區：底部留出工具列空間，不被蓋住
+    ══════════════════════════════════════ */
     .markdown-section {
       font-size: var(--base-font-size) !important;
+      padding-bottom: calc(var(--toolbar-height) + 24px) !important;
     }
 
-    /* 浮動控制面板（字體縮放 + 換頁） */
-    .font-control {
+    /* ══════════════════════════════════════
+       底部工具列：固定在頁面底部，與側邊欄切齊
+       left: 300px = docsify vue 主題的側邊欄預設寬度
+    ══════════════════════════════════════ */
+    .bottom-toolbar {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999;
+      bottom: 0;
+      left: 300px;
+      right: 0;
+      height: var(--toolbar-height);
+      z-index: 100;
       display: flex;
-      gap: 10px;
-      background: rgba(20, 20, 20, 0.8);
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #333;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(8, 8, 8, 0.96);
+      border-top: 1px solid #2a2a2a;
+      backdrop-filter: blur(6px);
+      box-sizing: border-box;
     }
 
-    .font-control button {
+    /* 左側：換頁按鈕 */
+    .toolbar-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* 右側：字體控制 */
+    .toolbar-font {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toolbar-font .font-label {
+      color: #555 !important;
+      font-size: 12px;
+    }
+
+    /* 按鈕共用 */
+    .bottom-toolbar button {
       background: #1a1a1a;
       color: #d4af37;
-      border: 1px solid #d4af37;
-      padding: 5px 12px;
+      border: 1px solid #3a3a3a;
+      padding: 6px 14px;
       cursor: pointer;
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 13px;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
     }
-
-    .font-control button:hover {
+    .bottom-toolbar button:hover {
       background: #d4af37;
       color: #000;
+      border-color: #d4af37;
     }
 
-    /* 分隔線，視覺上區隔字體按鈕與換頁按鈕 */
-    .font-control .divider {
-      width: 1px;
-      background: #444;
-      margin: 0 2px;
+    /* 響應式：手機版側邊欄收合，工具列從左側開始 */
+    @media screen and (max-width: 768px) {
+      .bottom-toolbar {
+        left: 0;
+      }
     }
   </style>
 </head>
 <body>
   <div id="app">載入中...</div>
 
-  <!-- 浮動控制面板 -->
-  <div class="font-control">
-    <button onclick="changeFontSize(2)" title="放大文字">A+</button>
-    <button onclick="changeFontSize(-2)" title="縮小文字">A-</button>
-    <button onclick="resetFontSize()" title="重置文字大小">重置</button>
-    <div class="divider"></div>
-    <button onclick="goPrevPage()" title="上一篇">◀ 上一篇</button>
-    <button onclick="goNextPage()" title="下一篇">下一篇 ▶</button>
+  <!-- 底部工具列 -->
+  <div class="bottom-toolbar">
+    <div class="toolbar-nav">
+      <button onclick="goPrevPage()" title="上一篇">◀ 上一篇</button>
+      <button onclick="goNextPage()" title="下一篇">下一篇 ▶</button>
+    </div>
+    <div class="toolbar-font">
+      <span class="font-label">字體大小</span>
+      <button onclick="changeFontSize(-2)" title="縮小文字">A−</button>
+      <button onclick="resetFontSize()"    title="重置">重置</button>
+      <button onclick="changeFontSize(2)"  title="放大文字">A+</button>
+    </div>
   </div>
 
   <script>
+    /* ════════════════════════════════
+       Docsify 設定
+    ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
       loadSidebar: true,
       alias: {
-        // 核心修正：不論在哪個路徑，都強制指向根目錄的 _sidebar.md
         '/.*/_sidebar.md': '/_sidebar.md'
       },
       subMaxLevel: 2,
       auto2top: true,
 
-      // 修正中文粗體渲染：在每頁內容渲染前，先用正則把 **文字** 換成 <strong>文字</strong>
-      // 原因：docsify 內建的 marked 對中文字元邊界判斷有 bug，導致粗體無法解析
+      // 修正中文粗體：marked 對中文邊界有 bug，用 beforeEach 預處理
       plugins: [
         function(hook) {
           hook.beforeEach(function(content) {
-            // 將 **任意內容** 轉為 <strong>，支援中文、英文、符號混排
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
         }
       ],
-      
-      // 搜尋插件配置
+
       search: {
         maxAge: 86400000,
         paths: 'auto',
@@ -149,7 +265,6 @@
         depth: 6
       },
 
-      // Tabs 插件配置
       tabs: {
         persist: true,
         sync: false,
@@ -161,7 +276,9 @@
   </script>
 
   <script>
-    /* ── 字體大小控制 ── */
+    /* ════════════════════════════════
+       字體大小控制
+    ════════════════════════════════ */
     let currentSize = parseInt(localStorage.getItem('agama-font-size')) || 18;
     applyFontSize(currentSize);
 
@@ -181,17 +298,16 @@
       document.documentElement.style.setProperty('--base-font-size', size + 'px');
     }
 
-    /* ── 上一篇 / 下一篇 ── */
-    // 從側邊欄收集所有連結，找到目前位置後切換
+    /* ════════════════════════════════
+       上一篇 / 下一篇
+    ════════════════════════════════ */
     function getSidebarLinks() {
-      // docsify 的側邊欄連結都在 .sidebar-nav 裡
       return Array.from(document.querySelectorAll('.sidebar-nav a'))
         .filter(a => a.href && !a.href.endsWith('#'));
     }
 
     function getCurrentIndex(links) {
-      const current = location.href;
-      return links.findIndex(a => a.href === current);
+      return links.findIndex(a => a.href === location.href);
     }
 
     function goNextPage() {
@@ -199,7 +315,7 @@
       const idx = getCurrentIndex(links);
       if (idx !== -1 && idx < links.length - 1) {
         links[idx + 1].click();
-      } else if (idx === links.length - 1) {
+      } else {
         alert('已經是最後一篇了！');
       }
     }
@@ -209,7 +325,7 @@
       const idx = getCurrentIndex(links);
       if (idx > 0) {
         links[idx - 1].click();
-      } else if (idx === 0) {
+      } else {
         alert('已經是第一篇了！');
       }
     }
@@ -218,6 +334,5 @@
   <script src="lib/docsify.min.js"></script>
   <script src="lib/plugins/search.min.js"></script>
   <script src="lib/plugins/docsify-tabs.min.js"></script>
-
 </body>
 </html>
