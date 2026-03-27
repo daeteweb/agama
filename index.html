@@ -21,8 +21,7 @@
     }
 
     /* ══════════════════════════════════════
-       消滅所有深藍色：覆蓋 vue.css 的預設值
-       vue.css 大量使用 #34495e / #2c3e50（深藍）當文字色
+       消滅所有深藍色
     ══════════════════════════════════════ */
     body,
     .markdown-section,
@@ -50,12 +49,12 @@
       color: #ffffff !important;
     }
 
-    /* 粗體：白色，讓重點文字更突出 */
+    /* 粗體白色 */
     strong, .markdown-section strong {
       color: #ffffff !important;
     }
 
-    /* 連結：金棕色，避免深藍 */
+    /* 連結金棕色 */
     a, .markdown-section a {
       color: #c8a84b !important;
     }
@@ -152,7 +151,37 @@
     }
 
     /* ══════════════════════════════════════
-       主內容區：底部留出工具列空間，不被蓋住
+       漢堡選單按鈕：強制可見、金色橫線
+       docsify 的 .sidebar-toggle 在手機版
+       預設可能因黑色背景而隱形
+    ══════════════════════════════════════ */
+    .sidebar-toggle {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 40px !important;
+      height: 40px !important;
+      padding: 10px !important;
+      cursor: pointer !important;
+      z-index: 9999 !important;          /* 最高層，確保不被蓋住 */
+      background: rgba(10,10,10,0.85) !important;
+      border-radius: 0 0 6px 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      box-sizing: border-box !important;
+    }
+    /* 三條橫線改成金色 */
+    .sidebar-toggle span {
+      display: block !important;
+      width: 100% !important;
+      height: 2px !important;
+      background: #d4af37 !important;
+      border-radius: 2px !important;
+    }
+
+    /* ══════════════════════════════════════
+       主內容區：底部留出工具列空間
     ══════════════════════════════════════ */
     .markdown-section {
       font-size: var(--base-font-size) !important;
@@ -160,41 +189,32 @@
     }
 
     /* ══════════════════════════════════════
-       底部工具列：固定在頁面底部，與側邊欄切齊
-       left: 300px = docsify vue 主題的側邊欄預設寬度
+       底部工具列
     ══════════════════════════════════════ */
     .bottom-toolbar {
       position: fixed;
       bottom: 0;
-      left: 300px;
+      left: 300px;   /* 對齊 docsify vue 側邊欄寬度 */
       right: 0;
       height: var(--toolbar-height);
-      z-index: 100;
+      z-index: 200;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      background: rgba(8, 8, 8, 0.96);
+      padding: 0 20px;
+      background: rgba(8, 8, 8, 0.97);
       border-top: 1px solid #2a2a2a;
       backdrop-filter: blur(6px);
       box-sizing: border-box;
-    }
-
-    /* 左側：換頁按鈕 */
-    .toolbar-nav {
-      display: flex;
       gap: 8px;
     }
 
-    /* 右側：字體控制 */
+    .toolbar-nav,
     .toolbar-font {
       display: flex;
+      gap: 6px;
       align-items: center;
-      gap: 8px;
-    }
-    .toolbar-font .font-label {
-      color: #555 !important;
-      font-size: 12px;
+      flex-shrink: 0;
     }
 
     /* 按鈕共用 */
@@ -202,12 +222,13 @@
       background: #1a1a1a;
       color: #d4af37;
       border: 1px solid #3a3a3a;
-      padding: 6px 14px;
+      padding: 6px 12px;
       cursor: pointer;
       border-radius: 4px;
       font-size: 13px;
       transition: background 0.15s, color 0.15s;
       white-space: nowrap;
+      flex-shrink: 0;
     }
     .bottom-toolbar button:hover {
       background: #d4af37;
@@ -215,29 +236,20 @@
       border-color: #d4af37;
     }
 
-    /* ── 手機版：讓漢堡選單按鈕可見 ── */
-    .sidebar-toggle {
-      background-color: rgba(10, 10, 10, 0.9) !important;
-    }
-    .sidebar-toggle span {
-      background-color: #d4af37 !important;
-    }
-
-    /* 手機版側邊欄展開時的背景 */
+    /* ══════════════════════════════════════
+       手機版 (≤768px)
+    ══════════════════════════════════════ */
     @media screen and (max-width: 768px) {
-      .sidebar {
-        background-color: #0a0a0a !important;
-      }
-      /* 側邊欄收合時，主內容區要回到最左側 */
-      body.close .sidebar-toggle {
-        background-color: rgba(10, 10, 10, 0.9) !important;
-      }
-    }
-
-    /* 響應式：手機版側邊欄收合，工具列從左側開始 */
-    @media screen and (max-width: 768px) {
+      /* 工具列從最左側開始（側邊欄收合） */
       .bottom-toolbar {
         left: 0;
+        padding: 0 10px;
+        gap: 4px;
+      }
+      /* 手機版按鈕縮小一點，確保一排放得下 */
+      .bottom-toolbar button {
+        padding: 6px 8px;
+        font-size: 12px;
       }
     }
   </style>
@@ -252,9 +264,8 @@
       <button onclick="goNextPage()" title="下一篇">下一篇 ▶</button>
     </div>
     <div class="toolbar-font">
-      <span class="font-label">字體大小</span>
       <button onclick="changeFontSize(-2)" title="縮小文字">A−</button>
-      <button onclick="resetFontSize()"    title="重置">重置</button>
+      <button onclick="resetFontSize()"    title="重置字體">重置</button>
       <button onclick="changeFontSize(2)"  title="放大文字">A+</button>
     </div>
   </div>
