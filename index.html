@@ -274,40 +274,47 @@
     /* ════════════════════════════════
        Docsify 設定
     ════════════════════════════════ */
-    window.$docsify = {
-      name: '《阿含經》白話計畫',
-      loadSidebar: true,
-      alias: {
-        '/.*/_sidebar.md': '/_sidebar.md'
-      },
-      subMaxLevel: 2,
-      auto2top: true,
+window.$docsify = {
+  name: '《阿含經》白話計畫',
+  loadSidebar: true, // 確保開啟側邊欄
+  alias: {
+    '/.*/_sidebar.md': '/_sidebar.md' // 確保所有路徑都讀取同一個側邊欄
+  },
+  subMaxLevel: 2,
+  auto2top: true,
 
-      // 修正中文粗體：marked 對中文邊界有 bug，用 beforeEach 預處理
-      plugins: [
-        function(hook) {
-          hook.beforeEach(function(content) {
-            return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
-          });
-        }
-      ],
+  // 1. 加入換行設定：解決您提到的「Code 看得到換行，網頁看步道」的問題
+  markdown: {
+    gfm: true,
+    breaks: true // 讓單次 Enter 也能觸發換行
+  },
 
-      search: {
-        maxAge: 86400000,
-        paths: 'auto',
-        placeholder: '搜尋經文...',
-        noData: '找不到結果',
-        depth: 6
-      },
+  // 2. 整合粗體修正插件：針對中文標點符號優化
+  plugins: [
+    function(hook) {
+      hook.beforeEach(function(content) {
+        // 同時處理標準粗體與可能被標點符號干擾的粗體
+        return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+      });
+    }
+  ],
 
-      tabs: {
-        persist: true,
-        sync: false,
-        theme: 'classic',
-        tabComments: true,
-        tabHeadings: true
-      }
-    };
+  search: {
+    maxAge: 86400000,
+    paths: 'auto',
+    placeholder: '搜尋經文...',
+    noData: '找不到結果',
+    depth: 6
+  },
+
+  tabs: {
+    persist: true,
+    sync: false,
+    theme: 'classic',
+    tabComments: true,
+    tabHeadings: true
+  }
+};
   </script>
 
   <script>
