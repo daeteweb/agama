@@ -215,6 +215,25 @@
       border-color: #d4af37;
     }
 
+    /* ── 手機版：讓漢堡選單按鈕可見 ── */
+    .sidebar-toggle {
+      background-color: rgba(10, 10, 10, 0.9) !important;
+    }
+    .sidebar-toggle span {
+      background-color: #d4af37 !important;
+    }
+
+    /* 手機版側邊欄展開時的背景 */
+    @media screen and (max-width: 768px) {
+      .sidebar {
+        background-color: #0a0a0a !important;
+      }
+      /* 側邊欄收合時，主內容區要回到最左側 */
+      body.close .sidebar-toggle {
+        background-color: rgba(10, 10, 10, 0.9) !important;
+      }
+    }
+
     /* 響應式：手機版側邊欄收合，工具列從左側開始 */
     @media screen and (max-width: 768px) {
       .bottom-toolbar {
