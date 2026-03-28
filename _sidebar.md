@@ -89,7 +89,7 @@
     * [雜阿含經第 85 經](suttas/sa/sa0085.md)
     * [雜阿含經第 86 經](suttas/sa/sa0086.md)
     * [雜阿含經第 87 經](suttas/sa/sa0087.md)
-    * [《雜阿含經》第 88 經](suttas/sa/sa0088.md)
+    * [雜阿含經第 88 經](suttas/sa/sa0088.md)
     * [雜阿含經第 89 經](suttas/sa/sa0089.md)
     * [雜阿含經第 90 經](suttas/sa/sa0090.md)
     * [雜阿含經第 91 經](suttas/sa/sa0091.md)
