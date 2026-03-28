@@ -77,11 +77,11 @@
     * [雜阿含經第 73 經](suttas/sa/sa0073.md)
     * [雜阿含經第 74 經](suttas/sa/sa0074.md)
     * [雜阿含經第 75 經](suttas/sa/sa0075.md)
-    * [《雜阿含經》第 76 經](suttas/sa/sa0076.md)
+    * [雜阿含經第 76 經](suttas/sa/sa0076.md)
     * [雜阿含經第 77 經](suttas/sa/sa0077.md)
     * [雜阿含經第 78 經](suttas/sa/sa0078.md)
-    * [《雜阿含經》第 79 經](suttas/sa/sa0079.md)
-    * [《雜阿含經》第 80 經](suttas/sa/sa0080.md)
+    * [雜阿含經第 79 經](suttas/sa/sa0079.md)
+    * [雜阿含經第 80 經](suttas/sa/sa0080.md)
 
 * **中阿含經**
   * (整理中...)
