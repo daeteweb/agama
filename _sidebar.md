@@ -70,6 +70,8 @@
     * [雜阿含經第 66 經](suttas/sa/sa0066.md)
     * [雜阿含經第 67 經](suttas/sa/sa0067.md)
     * [雜阿含經第 68 經](suttas/sa/sa0068.md)
+    * [雜阿含經第 69 經](suttas/sa/sa0069.md)
+    * [雜阿含經第 70 經](suttas/sa/sa0070.md)
 
 * **中阿含經**
   * (整理中...)
