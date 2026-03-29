@@ -31,39 +31,41 @@ jobs:
             path="${entry%%:*}"
             title="${entry#*:}"
 
+            # 頂層分類：可折疊（docsify collapse 語法用 <details>/<summary>）
             printf "* **$title**\n" >> _sidebar.md
 
-            if [ -d "$path" ] && [ "$(ls "$path"/*.md 2>/dev/null)" ]; then
+            if [ -d "$path" ] && ls "$path"/*.md > /dev/null 2>&1; then
               count=0
+              group_open=0
 
               # 取得排序後的檔案清單
               files=$(find "$path" -maxdepth 1 -name "*.md" | sort)
-              total=$(echo "$files" | wc -l)
+              total=$(echo "$files" | wc -l | tr -d ' ')
 
               for file in $files; do
-                # 每 50 篇建立一個子分類標籤
+                # 每 50 篇開一個新子分類
                 if [ $((count % 50)) -eq 0 ]; then
                   start=$((count + 1))
                   end=$((count + 50))
-                  # 如果剩餘不足 50，end 以實際總數為準
                   if [ $end -gt $total ]; then
                     end=$total
                   fi
+                  # 子分類標題（縮排一層）
                   printf "  * **第 %d - %d 經**\n" "$start" "$end" >> _sidebar.md
                 fi
 
-                # 抓取檔案第一個非空行作為標題，移除 # 號與前後空白
+                # 抓取第一個 # 標題行，移除 # 和前後空白
                 display_name=$(grep -m 1 "^#" "$file" | sed 's/^#\+[[:space:]]*//' | xargs)
-                # 若抓不到標題，退而用檔名
                 if [ -z "$display_name" ]; then
                   display_name=$(basename "$file" .md)
                 fi
 
-                # 寫入連結（縮排四格，放在子分類下）
+                # 經文連結（縮排兩層，放在子分類下）
                 printf "    * [%s](%s)\n" "$display_name" "$file" >> _sidebar.md
 
                 count=$((count + 1))
               done
+
             else
               printf "  * (整理中...)\n" >> _sidebar.md
             fi
