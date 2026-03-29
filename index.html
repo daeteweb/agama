@@ -276,24 +276,23 @@
     ════════════════════════════════ */
 window.$docsify = {
   name: '《阿含經》白話計畫',
-  loadSidebar: true, // 確保開啟側邊欄
+  loadSidebar: true,
   alias: {
-    '/.*/_sidebar.md': '/_sidebar.md' // 確保所有路徑都讀取同一個側邊欄
+    '/.*/_sidebar.md': '/_sidebar.md'
   },
-  subMaxLevel: 2,
+  // subMaxLevel: sidebar 裡幾層會自動展開
+  // 設 1 = 只展開第一層（各阿含），子分類預設折疊
+  subMaxLevel: 1,
   auto2top: true,
 
-  // 1. 加入換行設定：解決您提到的「Code 看得到換行，網頁看步道」的問題
   markdown: {
     gfm: true,
-    breaks: true // 讓單次 Enter 也能觸發換行
+    breaks: true
   },
 
-  // 2. 整合粗體修正插件：針對中文標點符號優化
   plugins: [
     function(hook) {
       hook.beforeEach(function(content) {
-        // 同時處理標準粗體與可能被標點符號干擾的粗體
         return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
       });
     }
@@ -343,68 +342,79 @@ window.$docsify = {
     /* ════════════════════════════════
        上一篇 / 下一篇
        ────────────────────────────────
-       改用 fetch _sidebar.md 解析全部連結，
+       fetch _sidebar.md → 解析所有連結路徑 → 轉成 hash 片段比對
        不依賴 DOM 展開狀態，資料夾折疊也能正確跨組換頁。
-       解析結果快取在 _sidebarLinks，避免重複請求。
+
+       關鍵：
+       - _sidebar.md 的路徑帶 .md，但 docsify URL 的 hash 不帶 .md
+         e.g. suttas/sa/sa0001.md → location.hash = #/suttas/sa/sa0001
+       - GitHub Pages 部署在子路徑 /agama/，fetch 要用相對路徑
     ════════════════════════════════ */
-    let _sidebarLinks = null; // 快取
+    let _sidebarPaths = null; // 快取：只存 hash 後面的純路徑片段，不含 .md
 
-    async function fetchSidebarLinks() {
-      if (_sidebarLinks) return _sidebarLinks;
-
+    async function fetchSidebarPaths() {
+      if (_sidebarPaths) return _sidebarPaths;
       try {
-        const res = await fetch('/_sidebar.md');
+        // 用相對路徑 fetch，自動適應任何部署子路徑
+        const res = await fetch('_sidebar.md');
+        if (!res.ok) throw new Error('fetch failed');
         const text = await res.text();
 
-        // 抓出所有 Markdown 連結 [文字](路徑) 裡的路徑
-        const base = location.origin + location.pathname.replace(/\/$/, '');
-        const regex = /\[.*?\]\(((?!http)[^)]+\.md)\)/g;
-        const links = [];
+        // 抓出所有 [文字](相對路徑.md)，跳過外部連結與錨點
+        const regex = /\[[^\]]+\]\((?!https?:\/\/)([^)#]+\.md)\)/g;
+        const paths = [];
         let m;
         while ((m = regex.exec(text)) !== null) {
-          // 把相對路徑轉成完整 URL（docsify 用 hash 路由）
-          const path = m[1].replace(/^\//, '');
-          links.push(base + '/#/' + path);
+          // 移除開頭的 ./ 或 /，再移除結尾的 .md
+          const clean = m[1].replace(/^\.?\//, '').replace(/\.md$/, '');
+          // 排除 README（首頁不算在換頁序列裡）
+          if (clean.toLowerCase() !== 'readme') {
+            paths.push(clean); // e.g. "suttas/sa/sa0001"
+          }
         }
-        _sidebarLinks = links;
-        return links;
+        _sidebarPaths = paths;
+        return paths;
       } catch (e) {
-        console.warn('無法讀取 _sidebar.md，退回 DOM 模式', e);
-        // 退回舊方法（作為保底）
-        return Array.from(document.querySelectorAll('.sidebar-nav a'))
-          .filter(a => a.href && !a.href.endsWith('#'))
-          .map(a => a.href);
+        console.warn('無法讀取 _sidebar.md', e);
+        return [];
       }
     }
 
-    function getCurrentIndex(links) {
-      // docsify hash 路由：比對 location.href
-      const current = location.href;
-      return links.findIndex(href => href === current);
+    // 取得目前頁面的路徑片段，對應 _sidebar.md 裡的格式
+    // location.hash 長這樣：  #/suttas/sa/sa0033
+    function getCurrentPath() {
+      return location.hash.replace(/^#\//, '').replace(/\.md$/, '');
     }
 
     async function goNextPage() {
-      const links = await fetchSidebarLinks();
-      const idx = getCurrentIndex(links);
-      if (idx !== -1 && idx < links.length - 1) {
-        location.href = links[idx + 1];
-      } else if (idx === links.length - 1) {
+      const paths = await fetchSidebarPaths();
+      const current = getCurrentPath();
+      const idx = paths.indexOf(current);
+      if (idx !== -1 && idx < paths.length - 1) {
+        location.hash = '#/' + paths[idx + 1];
+      } else if (idx === paths.length - 1) {
         alert('已經是最後一篇了！');
+      } else {
+        // 找不到代表在首頁或非經文頁，直接跳第一篇
+        if (paths.length > 0) location.hash = '#/' + paths[0];
       }
     }
 
     async function goPrevPage() {
-      const links = await fetchSidebarLinks();
-      const idx = getCurrentIndex(links);
+      const paths = await fetchSidebarPaths();
+      const current = getCurrentPath();
+      const idx = paths.indexOf(current);
       if (idx > 0) {
-        location.href = links[idx - 1];
+        location.hash = '#/' + paths[idx - 1];
       } else if (idx === 0) {
         alert('已經是第一篇了！');
+      } else {
+        if (paths.length > 0) location.hash = '#/' + paths[0];
       }
     }
 
-    // 頁面切換時清除快取（docsify 是 SPA，route 變了但頁面不重載）
-    window.addEventListener('hashchange', () => { _sidebarLinks = null; });
+    // 每次換頁後清除快取（sidebar 可能因 Action 更新）
+    window.addEventListener('hashchange', () => { _sidebarPaths = null; });
   </script>
 
   <script src="lib/docsify.min.js"></script>
