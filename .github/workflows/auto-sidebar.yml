@@ -33,33 +33,41 @@ jobs:
 
             printf "* **$title**\n" >> _sidebar.md
 
-            if [ -d "$path" ] && [ "$(ls -A $path/*.md 2>/dev/null)" ]; then
+            if [ -d "$path" ] && [ "$(ls "$path"/*.md 2>/dev/null)" ]; then
               count=0
+
               # 取得排序後的檔案清單
               files=$(find "$path" -maxdepth 1 -name "*.md" | sort)
-              
+              total=$(echo "$files" | wc -l)
+
               for file in $files; do
-                # 每 100 筆建立一個子分類標籤
-                if [ $((count % 100)) -eq 0 ]; then
+                # 每 50 篇建立一個子分類標籤
+                if [ $((count % 50)) -eq 0 ]; then
                   start=$((count + 1))
-                  end=$((count + 100))
-                  printf "  * **第 $start - $end 經**\n" >> _sidebar.md
+                  end=$((count + 50))
+                  # 如果剩餘不足 50，end 以實際總數為準
+                  if [ $end -gt $total ]; then
+                    end=$total
+                  fi
+                  printf "  * **第 %d - %d 經**\n" "$start" "$end" >> _sidebar.md
                 fi
 
-                # 抓取檔案標題
-                display_name=$(head -n 1 "$file" | sed 's/[#*]//g' | xargs)
+                # 抓取檔案第一個非空行作為標題，移除 # 號與前後空白
+                display_name=$(grep -m 1 "^#" "$file" | sed 's/^#\+[[:space:]]*//' | xargs)
+                # 若抓不到標題，退而用檔名
                 if [ -z "$display_name" ]; then
                   display_name=$(basename "$file" .md)
                 fi
-                
-                # 寫入檔案連結（注意：這裡縮排兩次，讓它在「第 X-Y 經」下方）
-                printf "    * [$display_name]($file)\n" >> _sidebar.md
-                
+
+                # 寫入連結（縮排四格，放在子分類下）
+                printf "    * [%s](%s)\n" "$display_name" "$file" >> _sidebar.md
+
                 count=$((count + 1))
               done
             else
               printf "  * (整理中...)\n" >> _sidebar.md
             fi
+
             printf "\n" >> _sidebar.md
           done
 
@@ -68,4 +76,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add _sidebar.md
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update sidebar with virtual grouping [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || \
+            (git commit -m "Auto-update sidebar [skip ci]" && git push)
