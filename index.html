@@ -342,35 +342,69 @@ window.$docsify = {
 
     /* ════════════════════════════════
        上一篇 / 下一篇
+       ────────────────────────────────
+       改用 fetch _sidebar.md 解析全部連結，
+       不依賴 DOM 展開狀態，資料夾折疊也能正確跨組換頁。
+       解析結果快取在 _sidebarLinks，避免重複請求。
     ════════════════════════════════ */
-    function getSidebarLinks() {
-      return Array.from(document.querySelectorAll('.sidebar-nav a'))
-        .filter(a => a.href && !a.href.endsWith('#'));
+    let _sidebarLinks = null; // 快取
+
+    async function fetchSidebarLinks() {
+      if (_sidebarLinks) return _sidebarLinks;
+
+      try {
+        const res = await fetch('/_sidebar.md');
+        const text = await res.text();
+
+        // 抓出所有 Markdown 連結 [文字](路徑) 裡的路徑
+        const base = location.origin + location.pathname.replace(/\/$/, '');
+        const regex = /\[.*?\]\(((?!http)[^)]+\.md)\)/g;
+        const links = [];
+        let m;
+        while ((m = regex.exec(text)) !== null) {
+          // 把相對路徑轉成完整 URL（docsify 用 hash 路由）
+          const path = m[1].replace(/^\//, '');
+          links.push(base + '/#/' + path);
+        }
+        _sidebarLinks = links;
+        return links;
+      } catch (e) {
+        console.warn('無法讀取 _sidebar.md，退回 DOM 模式', e);
+        // 退回舊方法（作為保底）
+        return Array.from(document.querySelectorAll('.sidebar-nav a'))
+          .filter(a => a.href && !a.href.endsWith('#'))
+          .map(a => a.href);
+      }
     }
 
     function getCurrentIndex(links) {
-      return links.findIndex(a => a.href === location.href);
+      // docsify hash 路由：比對 location.href
+      const current = location.href;
+      return links.findIndex(href => href === current);
     }
 
-    function goNextPage() {
-      const links = getSidebarLinks();
+    async function goNextPage() {
+      const links = await fetchSidebarLinks();
       const idx = getCurrentIndex(links);
       if (idx !== -1 && idx < links.length - 1) {
-        links[idx + 1].click();
-      } else {
+        location.href = links[idx + 1];
+      } else if (idx === links.length - 1) {
         alert('已經是最後一篇了！');
       }
     }
 
-    function goPrevPage() {
-      const links = getSidebarLinks();
+    async function goPrevPage() {
+      const links = await fetchSidebarLinks();
       const idx = getCurrentIndex(links);
       if (idx > 0) {
-        links[idx - 1].click();
-      } else {
+        location.href = links[idx - 1];
+      } else if (idx === 0) {
         alert('已經是第一篇了！');
       }
     }
+
+    // 頁面切換時清除快取（docsify 是 SPA，route 變了但頁面不重載）
+    window.addEventListener('hashchange', () => { _sidebarLinks = null; });
   </script>
 
   <script src="lib/docsify.min.js"></script>
