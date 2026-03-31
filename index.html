@@ -252,6 +252,17 @@
         font-size: 12px;
       }
     }
+    /* 側邊欄摺疊箭頭顏色 */
+.sidebar-nav li:not(.collapse) > .section-link:after {
+  content: '▼';
+  font-size: 10px;
+  margin-left: 5px;
+  color: var(--theme-color);
+}
+.sidebar-nav li.collapse > .section-link:after {
+  content: '▶';
+  color: var(--base-color);
+}
   </style>
 </head>
 <body>
