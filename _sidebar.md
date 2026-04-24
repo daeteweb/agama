@@ -7,7 +7,7 @@
     * [雜阿含經 第 3 經](suttas/sa/sa0003.md)
     * [雜阿含經 第 4 經](suttas/sa/sa0004.md)
     * [雜阿含經 第 5 經](suttas/sa/sa0005.md)
-    * [雜阿含經第 6 經 (Gemma-4-26b-a4b)](suttas/sa/sa0006.md)
+    * [雜阿含經第 6 經](suttas/sa/sa0006.md)
     * [雜阿含經 第 7 經](suttas/sa/sa0007.md)
     * [雜阿含經 第 8 經](suttas/sa/sa0008.md)
     * [雜阿含經 第 9 經](suttas/sa/sa0009.md)
