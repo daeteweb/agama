@@ -144,7 +144,7 @@
     * [雜阿含經 第 138 經](suttas/sa/sa0138.md)
     * [雜阿含經 第 139 經](suttas/sa/sa0139.md)
     * [雜阿含經 第 140 經](suttas/sa/sa0140.md)
-    * [雜阿含經 第 140、141 經](suttas/sa/sa0141.md)
+    * [雜阿含經 第 141 經](suttas/sa/sa0141.md)
     * [雜阿含經 第 142 經](suttas/sa/sa0142.md)
     * [雜阿含經 第 143 經](suttas/sa/sa0143.md)
     * [雜阿含經 第 144 經](suttas/sa/sa0144.md)
