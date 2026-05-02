@@ -47,7 +47,7 @@
     * [雜阿含經第 43 經](suttas/sa/sa0043.md)
     * [雜阿含經第 44 經](suttas/sa/sa0044.md)
     * [雜阿含經第 45 經](suttas/sa/sa0045.md)
-    * [雜阿含經第 46 經](suttas/sa/sa0046.md)
+    * [雜阿含經 第 46 經](suttas/sa/sa0046.md)
     * [雜阿含經第 47 經](suttas/sa/sa0047.md)
     * [雜阿含經第 48 經](suttas/sa/sa0048.md)
     * [雜阿含經第 49 經](suttas/sa/sa0049.md)
