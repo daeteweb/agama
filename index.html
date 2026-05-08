@@ -152,8 +152,6 @@
 
     /* ══════════════════════════════════════
        漢堡選單按鈕：強制可見、金色橫線
-       docsify 的 .sidebar-toggle 在手機版
-       預設可能因黑色背景而隱形
     ══════════════════════════════════════ */
     .sidebar-toggle {
       position: fixed !important;
@@ -163,7 +161,7 @@
       height: 40px !important;
       padding: 10px !important;
       cursor: pointer !important;
-      z-index: 9999 !important;          /* 最高層，確保不被蓋住 */
+      z-index: 9999 !important;          
       background: rgba(10,10,10,0.85) !important;
       border-radius: 0 0 6px 0 !important;
       display: flex !important;
@@ -171,7 +169,6 @@
       justify-content: space-between !important;
       box-sizing: border-box !important;
     }
-    /* 三條橫線改成金色 */
     .sidebar-toggle span {
       display: block !important;
       width: 100% !important;
@@ -194,7 +191,7 @@
     .bottom-toolbar {
       position: fixed;
       bottom: 0;
-      left: 300px;   /* 對齊 docsify vue 側邊欄寬度 */
+      left: 300px;
       right: 0;
       height: var(--toolbar-height);
       z-index: 200;
@@ -217,7 +214,6 @@
       flex-shrink: 0;
     }
 
-    /* 按鈕共用 */
     .bottom-toolbar button {
       background: #1a1a1a;
       color: #d4af37;
@@ -240,29 +236,27 @@
        手機版 (≤768px)
     ══════════════════════════════════════ */
     @media screen and (max-width: 768px) {
-      /* 工具列從最左側開始（側邊欄收合） */
       .bottom-toolbar {
         left: 0;
         padding: 0 10px;
         gap: 4px;
       }
-      /* 手機版按鈕縮小一點，確保一排放得下 */
       .bottom-toolbar button {
         padding: 6px 8px;
         font-size: 12px;
       }
     }
     /* 側邊欄摺疊箭頭顏色 */
-.sidebar-nav li:not(.collapse) > .section-link:after {
-  content: '▼';
-  font-size: 10px;
-  margin-left: 5px;
-  color: var(--theme-color);
-}
-.sidebar-nav li.collapse > .section-link:after {
-  content: '▶';
-  color: var(--base-color);
-}
+    .sidebar-nav li:not(.collapse) > .section-link:after {
+      content: '▼';
+      font-size: 10px;
+      margin-left: 5px;
+      color: var(--theme-color);
+    }
+    .sidebar-nav li.collapse > .section-link:after {
+      content: '▶';
+      color: var(--base-color);
+    }
   </style>
 </head>
 <body>
@@ -283,49 +277,8 @@
 
   <script>
     /* ════════════════════════════════
-       Docsify 設定
+       Docsify 設定 (已清理重複宣告並加入功能)
     ════════════════════════════════ */
-window.$docsify = {
-  name: '《阿含經》白話計畫',
-  loadSidebar: true,
-  alias: {
-    '/.*/_sidebar.md': '/_sidebar.md'
-  },
-  // subMaxLevel: sidebar 裡幾層會自動展開
-  // 設 1 = 只展開第一層（各阿含），子分類預設折疊
-  subMaxLevel: 2,
-//  sidebarDisplayLevel: 1, // 如果你使用了特定插件才需要，否則 Docsify 預設會根據點擊狀態顯示
-  auto2top: true,
-
-  markdown: {
-    gfm: true,
-    breaks: true
-  },
-
-  plugins: [
-    function(hook) {
-      hook.beforeEach(function(content) {
-        return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
-      });
-    }
-  ],
-
-  search: {
-    maxAge: 86400000,
-    paths: 'auto',
-    placeholder: '搜尋經文...',
-    noData: '找不到結果',
-    depth: 6
-  },
-
-  tabs: {
-    persist: true,
-    sync: false,
-    theme: 'classic',
-    tabComments: true,
-    tabHeadings: true
-  }
-};
     window.$docsify = {
       name: '《阿含經》白話計畫',
       loadSidebar: true,
@@ -334,12 +287,43 @@ window.$docsify = {
       },
       subMaxLevel: 2,
       auto2top: true,
-
-      // 修正中文粗體：marked 對中文邊界有 bug，用 beforeEach 預處理
-      plugins: [
-        function(hook) {
+      markdown: {
+        gfm: true,
+        breaks: true
+      },
+      plugins:[
+        function(hook, vm) {
+          // 1. 修正中文粗體：marked 對中文邊界有 bug，用 beforeEach 預處理
           hook.beforeEach(function(content) {
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
+          });
+
+          // 2. 確保每一次換頁(包含按下一頁)載入完畢後，強制捲動到最頂端
+          hook.doneEach(function() {
+            window.scrollTo(0, 0);
+          });
+
+          // 3. 手機版優化：點擊具有子選單的目錄時，側邊欄不要收起來
+          hook.mounted(function() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+              sidebar.addEventListener('click', function(e) {
+                if (window.innerWidth > 768) return; // 僅限手機版
+                
+                const targetLink = e.target.closest('a');
+                if (!targetLink) return;
+
+                // 檢查這個 a 標籤所在的 li 底下有沒有 ul，如果有代表它是「目錄」
+                const parentLi = targetLink.closest('li');
+                if (parentLi && parentLi.querySelector('ul')) {
+                  // docsify 預設點擊 a 標籤會移除 class 'close' 來關閉手機側邊欄
+                  // 我們用 setTimeout 延遲一點點，強制把 'close' 加回來，保持它展開
+                  setTimeout(() => {
+                    document.body.classList.add('close');
+                  }, 10);
+                }
+              });
+            }
           });
         }
       ],
@@ -386,55 +370,36 @@ window.$docsify = {
     }
 
     /* ════════════════════════════════
-       上一篇 / 下一篇
-       ────────────────────────────────
-       fetch _sidebar.md → 解析所有連結路徑 → 轉成 hash 片段比對
-       不依賴 DOM 展開狀態，資料夾折疊也能正確跨組換頁。
-
-       關鍵：
-       - _sidebar.md 的路徑帶 .md，但 docsify URL 的 hash 不帶 .md
-         e.g. suttas/sa/sa0001.md → location.hash = #/suttas/sa/sa0001
-       - GitHub Pages 部署在子路徑 /agama/，fetch 要用相對路徑
+       上一篇 / 下一篇 (修復代碼結構錯誤)
     ════════════════════════════════ */
-    let _sidebarPaths = null; // 快取：只存 hash 後面的純路徑片段，不含 .md
+    let _sidebarPaths = null; 
 
     async function fetchSidebarPaths() {
       if (_sidebarPaths) return _sidebarPaths;
       try {
-        // 用相對路徑 fetch，自動適應任何部署子路徑
         const res = await fetch('_sidebar.md');
         if (!res.ok) throw new Error('fetch failed');
         const text = await res.text();
 
-        // 抓出所有 [文字](相對路徑.md)，跳過外部連結與錨點
         const regex = /\[[^\]]+\]\((?!https?:\/\/)([^)#]+\.md)\)/g;
-        const paths = [];
+        const paths =[];
         let m;
         while ((m = regex.exec(text)) !== null) {
-          // 移除開頭的 ./ 或 /，再移除結尾的 .md
           const clean = m[1].replace(/^\.?\//, '').replace(/\.md$/, '');
-          // 排除 README（首頁不算在換頁序列裡）
           if (clean.toLowerCase() !== 'readme') {
-            paths.push(clean); // e.g. "suttas/sa/sa0001"
+            paths.push(clean);
           }
         }
         _sidebarPaths = paths;
         return paths;
       } catch (e) {
         console.warn('無法讀取 _sidebar.md', e);
-        return [];
+        return[];
       }
-    function getSidebarLinks() {
-      return Array.from(document.querySelectorAll('.sidebar-nav a'))
-        .filter(a => a.href && !a.href.endsWith('#'));
     }
 
-    // 取得目前頁面的路徑片段，對應 _sidebar.md 裡的格式
-    // location.hash 長這樣：  #/suttas/sa/sa0033
     function getCurrentPath() {
       return location.hash.replace(/^#\//, '').replace(/\.md$/, '');
-    function getCurrentIndex(links) {
-      return links.findIndex(a => a.href === location.href);
     }
 
     async function goNextPage() {
@@ -443,16 +408,9 @@ window.$docsify = {
       const idx = paths.indexOf(current);
       if (idx !== -1 && idx < paths.length - 1) {
         location.hash = '#/' + paths[idx + 1];
-      } else if (idx === paths.length - 1) {
-        alert('已經是最後一篇了！');
-    function goNextPage() {
-      const links = getSidebarLinks();
-      const idx = getCurrentIndex(links);
-      if (idx !== -1 && idx < links.length - 1) {
-        links[idx + 1].click();
+      } else if (idx === -1 && paths.length > 0) {
+        location.hash = '#/' + paths[0]; // 不在列表內(例如首頁)，直接跳第一篇
       } else {
-        // 找不到代表在首頁或非經文頁，直接跳第一篇
-        if (paths.length > 0) location.hash = '#/' + paths[0];
         alert('已經是最後一篇了！');
       }
     }
@@ -461,21 +419,16 @@ window.$docsify = {
       const paths = await fetchSidebarPaths();
       const current = getCurrentPath();
       const idx = paths.indexOf(current);
-    function goPrevPage() {
-      const links = getSidebarLinks();
-      const idx = getCurrentIndex(links);
       if (idx > 0) {
         location.hash = '#/' + paths[idx - 1];
-      } else if (idx === 0) {
-        alert('已經是第一篇了！');
-        links[idx - 1].click();
+      } else if (idx === -1 && paths.length > 0) {
+        location.hash = '#/' + paths[0]; 
       } else {
-        if (paths.length > 0) location.hash = '#/' + paths[0];
         alert('已經是第一篇了！');
       }
     }
 
-    // 每次換頁後清除快取（sidebar 可能因 Action 更新）
+    // 每次換頁後清除快取
     window.addEventListener('hashchange', () => { _sidebarPaths = null; });
   </script>
 
