@@ -275,9 +275,9 @@
     </div>
   </div>
 
-  <script>
+<script>
     /* ════════════════════════════════
-       Docsify 設定 (已清理重複宣告並加入功能)
+       Docsify 設定
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -313,13 +313,12 @@
                 const targetLink = e.target.closest('a');
                 if (!targetLink) return;
 
-                // 檢查這個 a 標籤所在的 li 底下有沒有 ul，如果有代表它是「目錄」
                 const parentLi = targetLink.closest('li');
+                // 如果底層還有 ul，代表它是可展開的目錄夾
                 if (parentLi && parentLi.querySelector('ul')) {
-                  // docsify 預設點擊 a 標籤會移除 class 'close' 來關閉手機側邊欄
-                  // 我們用 setTimeout 延遲一點點，強制把 'close' 加回來，保持它展開
                   setTimeout(() => {
-                    document.body.classList.add('close');
+                    // 將 body 的 close 移除，強迫側邊欄留在畫面上
+                    document.body.classList.remove('close');
                   }, 10);
                 }
               });
