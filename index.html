@@ -303,38 +303,12 @@
             window.scrollTo(0, 0);
           });
 
-          // 3. 手機版優化（核心改進）：
-          //    - 保留 SIDEBAR 開啟，只允許點擊內容頁面時關閉
-          //    - 分別層級鏈接和內容頁面鏈接
+          // 3. 手機版優化：
+          //    - 分類層級：保持 SIDEBAR 開啟
+          //    - 內容頁面：自動關閉 SIDEBAR
+          //    - 點擊 SIDEBAR 以外：自動關閉 SIDEBAR
           hook.mounted(function() {
-            const sidebar = document.querySelector('.sidebar');
-            if (sidebar) {
-              sidebar.addEventListener('click', function(e) {
-                if (window.innerWidth > 768) return; // 僅限手機版
-                
-                const targetLink = e.target.closest('a');
-                if (!targetLink) return;
-
-                const parentLi = targetLink.closest('li');
-                const hasSubMenu = parentLi && parentLi.querySelector('ul');
-                
-                // 判斷是內容頁面（.md 檔案）還是分類層級（有子菜單）
-                const href = targetLink.getAttribute('href');
-                const isContentPage = href && href.match(/\.md$/i) && !hasSubMenu;
-
-                if (isContentPage) {
-                  // 只有點擊內容頁面時，才自動關閉 SIDEBAR
-                  setTimeout(() => {
-                    document.body.classList.add('close');
-                  }, 10);
-                } else if (hasSubMenu) {
-                  // 點擊有子菜單的項目時，保留 SIDEBAR 開啟
-                  setTimeout(() => {
-                    document.body.classList.remove('close');
-                  }, 10);
-                }
-              });
-            }
+            setTimeout(setupMobileMenuHandler, 100);
           });
         }
       ],
@@ -358,6 +332,54 @@
   </script>
 
   <script>
+    /* ════════════════════════════════
+       手機菜單系統核心邏輯
+    ════════════════════════════════ */
+    function setupMobileMenuHandler() {
+      const sidebar = document.querySelector('.sidebar');
+      if (!sidebar) return;
+
+      // ─── 1. SIDEBAR 內部點擊事件 ───
+      sidebar.addEventListener('click', function(e) {
+        if (window.innerWidth > 768) return; // 僅限手機版
+        
+        const targetLink = e.target.closest('a');
+        if (!targetLink) return;
+
+        const parentLi = targetLink.closest('li');
+        const hasSubMenu = parentLi && parentLi.querySelector('ul');
+        
+        // 判斷是內容頁面（.md 檔案）還是分類層級（有子菜單）
+        const href = targetLink.getAttribute('href');
+        const isContentPage = href && href.match(/\.md$/i) && !hasSubMenu;
+
+        if (isContentPage) {
+          // 內容頁面 → 自動關閉 SIDEBAR
+          document.body.classList.add('close');
+        } else if (hasSubMenu) {
+          // 分類層級 → 保持 SIDEBAR 開啟
+          document.body.classList.remove('close');
+        }
+      });
+
+      // ─── 2. 點擊 SIDEBAR 以外區域關閉 ───
+      document.addEventListener('click', function(e) {
+        if (window.innerWidth > 768) return; // 僅限手機版
+        
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const clickedInSidebar = sidebar.contains(e.target);
+        const clickedToggle = sidebarToggle && sidebarToggle.contains(e.target);
+        
+        // 如果點擊的既不在 SIDEBAR 也不在漢堡按鈕，則關閉 SIDEBAR
+        if (!clickedInSidebar && !clickedToggle) {
+          // 只在 SIDEBAR 已開啟時才關閉
+          if (!document.body.classList.contains('close')) {
+            document.body.classList.add('close');
+          }
+        }
+      });
+    }
+
     /* ════════════════════════════════
        字體大小控制
     ════════════════════════════════ */
