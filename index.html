@@ -303,7 +303,9 @@
             window.scrollTo(0, 0);
           });
 
-          // 3. 手機版優化：點擊具有子選單的目錄時，側邊欄不要收起來
+          // 3. 手機版優化（核心改進）：
+          //    - 保留 SIDEBAR 開啟，只允許點擊內容頁面時關閉
+          //    - 分別層級鏈接和內容頁面鏈接
           hook.mounted(function() {
             const sidebar = document.querySelector('.sidebar');
             if (sidebar) {
@@ -314,10 +316,20 @@
                 if (!targetLink) return;
 
                 const parentLi = targetLink.closest('li');
-                // 如果底層還有 ul，代表它是可展開的目錄夾
-                if (parentLi && parentLi.querySelector('ul')) {
+                const hasSubMenu = parentLi && parentLi.querySelector('ul');
+                
+                // 判斷是內容頁面（.md 檔案）還是分類層級（有子菜單）
+                const href = targetLink.getAttribute('href');
+                const isContentPage = href && href.match(/\.md$/i) && !hasSubMenu;
+
+                if (isContentPage) {
+                  // 只有點擊內容頁面時，才自動關閉 SIDEBAR
                   setTimeout(() => {
-                    // 將 body 的 close 移除，強迫側邊欄留在畫面上
+                    document.body.classList.add('close');
+                  }, 10);
+                } else if (hasSubMenu) {
+                  // 點擊有子菜單的項目時，保留 SIDEBAR 開啟
+                  setTimeout(() => {
                     document.body.classList.remove('close');
                   }, 10);
                 }
