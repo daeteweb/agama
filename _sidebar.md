@@ -805,7 +805,7 @@
     * [雜阿含經 第 786 經](suttas/sa/sa0786.md)
     * [雜阿含經 第 787 經](suttas/sa/sa0787.md)
     * [雜阿含經 第 788 經](suttas/sa/sa0788.md)
-    * [雜阿含經 第 7, 8, 9 經](suttas/sa/sa0789.md)
+    * [雜阿含經 第 789 經](suttas/sa/sa0789.md)
     * [雜阿含經 第 790 經](suttas/sa/sa0790.md)
     * [雜阿含經 第 791 經](suttas/sa/sa0791.md)
     * [雜阿含經 第 792 經](suttas/sa/sa0792.md)
