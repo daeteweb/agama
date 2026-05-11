@@ -617,7 +617,7 @@
     * [雜阿含經 第 601 經](suttas/sa/sa0601.md)
     * [雜阿含經 第 602 經](suttas/sa/sa0602.md)
     * [雜阿含經 第 603 經](suttas/sa/sa0603.md)
-    * [雜阿含經 第 604 經](suttas/sa/sa0604.md)
+    * [sa0604](suttas/sa/sa0604.md)
     * [雜阿含經 第 605 經](suttas/sa/sa0605.md)
     * [雜阿含經 第 606 經](suttas/sa/sa0606.md)
     * [雜阿含經 第 607 經](suttas/sa/sa0607.md)
