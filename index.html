@@ -40,7 +40,6 @@
       background-color: var(--background);
     }
 
-    /* 標題全部白色 */
     h1, h2, h3, h4, h5, h6,
     .markdown-section h1,
     .markdown-section h2,
@@ -49,12 +48,10 @@
       color: #ffffff !important;
     }
 
-    /* 粗體白色 */
     strong, .markdown-section strong {
       color: #ffffff !important;
     }
 
-    /* 連結金棕色 */
     a, .markdown-section a {
       color: #c8a84b !important;
     }
@@ -62,7 +59,6 @@
       color: #d4af37 !important;
     }
 
-    /* 程式碼區塊 */
     .markdown-section code,
     .markdown-section pre code {
       color: #e0c97a !important;
@@ -161,7 +157,7 @@
       height: 40px !important;
       padding: 10px !important;
       cursor: pointer !important;
-      z-index: 9999 !important;          
+      z-index: 9999 !important;
       background: rgba(10,10,10,0.85) !important;
       border-radius: 0 0 6px 0 !important;
       display: flex !important;
@@ -246,6 +242,7 @@
         font-size: 12px;
       }
     }
+    
     /* 側邊欄摺疊箭頭顏色 */
     .sidebar-nav li:not(.collapse) > .section-link:after {
       content: '▼';
@@ -275,9 +272,9 @@
     </div>
   </div>
 
-<script>
-/* ════════════════════════════════
-       Docsify 設定
+  <script>
+    /* ════════════════════════════════
+       Docsify 設定與終極解決方案
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -298,7 +295,7 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 2. 徹底解決換頁置頂
+          // 2. 換頁置頂
           hook.doneEach(function() {
             setTimeout(() => {
               window.scrollTo(0, 0);
@@ -307,34 +304,36 @@
             }, 100);
           });
 
-          // 3. 手機版優化：點擊目錄不收合側邊欄，點擊文章才收合
+          // 3. 終極手機側邊欄接管
           hook.mounted(function() {
             const sidebar = document.querySelector('.sidebar');
             if (sidebar) {
+              // true 代表在 Capture (捕獲) 階段攔截，比 Docsify 本身的監聽器還早執行
               sidebar.addEventListener('click', function(e) {
-                if (window.innerWidth > 768) return; // 僅限手機模式執行
+                // 如果是電腦版，直接跳過，讓原本外掛去處理
+                if (window.innerWidth > 768) return; 
 
-                const target = e.target;
-                // 找到被點擊的連結 (a 標籤)
-                const a = target.closest('a');
-                if (!a) return;
+                // 找到被點擊的列表物件 (li)
+                const li = e.target.closest('li');
+                if (!li) return;
 
-                const li = a.closest('li');
-                // 判斷這是不是一個「資料夾」（底下有子選單 ul）
-                // 或者它是不是摺疊插件產生的 section-link
-                const isFolder = li && (li.querySelector('ul') || a.classList.contains('section-link'));
-
-                if (isFolder) {
-                  // 如果點的是資料夾，我們允許事件冒泡（讓摺疊插件運作）
-                  // 但我們「立刻」把 Docsify 試圖加上去的 'close' class 移除掉
-                  // 這樣側邊欄就不會縮回去了
-                  setTimeout(() => {
-                    document.body.classList.remove('close');
-                  }, 50); 
-                } else {
-                  // 如果點的是真正的文章連結 (沒子目錄了)，就放行讓它自然收合
+                // 判斷這個清單內有沒有子選單 (ul)
+                const ul = li.querySelector('ul');
+                if (ul) {
+                  // 重點：判斷使用者點擊的是「資料夾標題」還是「展開後的子連結」
+                  // 如果點擊的位置「不在子選單 ul 內部」，就代表點的是「資料夾標題」！
+                  if (!ul.contains(e.target)) {
+                    // 攔截事件！不要讓 Docsify 知道我們點了東西，側邊欄就不會關了
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    // 手動幫折疊外掛做事：切換這個資料夾的開闔狀態
+                    li.classList.toggle('collapse');
+                  }
                 }
-              });
+                // 如果 ul 不存在 (代表它是最終的文章連結，例如 第 1 經)，
+                // 程式什麼都不攔截，直接放行，讓 Docsify 乖乖把側邊欄關起來並讀取文章！
+              }, true); 
             }
           });
         }
@@ -382,21 +381,19 @@
     }
 
     /* ════════════════════════════════
-       上一篇 / 下一篇 功能
+       上一篇 / 下一篇
     ════════════════════════════════ */
     let _sidebarPaths = null; 
 
     async function fetchSidebarPaths() {
       if (_sidebarPaths) return _sidebarPaths;
       try {
-        // 使用相對路徑，適應 GitHub Pages 子目錄
         const res = await fetch('_sidebar.md');
         if (!res.ok) throw new Error('fetch failed');
         const text = await res.text();
 
-        // 抓取所有 markdown 連結路徑
         const regex = /\[[^\]]+\]\((?!https?:\/\/)([^)#]+\.md)\)/g;
-        const paths = [];
+        const paths =[];
         let m;
         while ((m = regex.exec(text)) !== null) {
           const clean = m[1].replace(/^\.?\//, '').replace(/\.md$/, '');
@@ -408,7 +405,7 @@
         return paths;
       } catch (e) {
         console.warn('無法讀取 _sidebar.md', e);
-        return [];
+        return[];
       }
     }
 
@@ -423,8 +420,7 @@
       if (idx !== -1 && idx < paths.length - 1) {
         location.hash = '#/' + paths[idx + 1];
       } else if (idx === -1 && paths.length > 0) {
-        // 如果在首頁，跳轉到第一篇
-        location.hash = '#/' + paths[0];
+        location.hash = '#/' + paths[0]; 
       } else {
         alert('已經是最後一篇了！');
       }
@@ -436,12 +432,14 @@
       const idx = paths.indexOf(current);
       if (idx > 0) {
         location.hash = '#/' + paths[idx - 1];
+      } else if (idx === -1 && paths.length > 0) {
+        location.hash = '#/' + paths[0]; 
       } else {
         alert('已經是第一篇了！');
       }
     }
 
-    // 換頁時清除快取，確保同步最新目錄
+    // 每次換頁後清除快取
     window.addEventListener('hashchange', () => { _sidebarPaths = null; });
   </script>
 
