@@ -5,151 +5,137 @@
   <title>《阿含經》白話計畫</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-
   <link rel="stylesheet" href="lib/themes/vue.css">
-
   <style>
     /* ══════════════════════════════════════
-       全域色彩變數
-    ══════════════════════════════════════ */
+全域色彩變數
+══════════════════════════════════════ */
     :root {
-      --background:      #000000;
-      --base-color:      #b59a4d;
-      --theme-color:     #d4af37;
-      --base-font-size:  18px;
-      --toolbar-height:  52px;
-    }
-
+      --background: #000000;
+      --base-color: #b59a4d;
+      --theme-color: #d4af37;
+      --base-font-size: 18px;
+      --toolbar-height: 52px;
+}
     /* ══════════════════════════════════════
-       消滅所有深藍色
-    ══════════════════════════════════════ */
+消滅所有深藍色
+══════════════════════════════════════ */
     body,
-    .markdown-section,
-    .markdown-section p,
-    .markdown-section li,
-    .markdown-section td,
-    .markdown-section th,
-    .markdown-section blockquote,
-    .markdown-section blockquote p,
-    .content,
+.markdown-section,
+.markdown-section p,
+.markdown-section li,
+.markdown-section td,
+.markdown-section th,
+.markdown-section blockquote,
+.markdown-section blockquote p,
+.content,
     p, li, td, th, span, label {
       color: var(--base-color) !important;
-    }
-
+}
     body {
       background-color: var(--background);
-    }
-
+}
     h1, h2, h3, h4, h5, h6,
-    .markdown-section h1,
-    .markdown-section h2,
-    .markdown-section h3,
-    .markdown-section h4 {
+.markdown-section h1,
+.markdown-section h2,
+.markdown-section h3,
+.markdown-section h4 {
       color: #ffffff !important;
-    }
-
+}
     strong, .markdown-section strong {
       color: #ffffff !important;
-    }
-
+}
     a, .markdown-section a {
       color: #c8a84b !important;
-    }
+}
     a:hover, .markdown-section a:hover {
       color: #d4af37 !important;
-    }
-
-    .markdown-section code,
-    .markdown-section pre code {
+}
+.markdown-section code,
+.markdown-section pre code {
       color: #e0c97a !important;
       background: #111 !important;
-    }
-    .markdown-section pre {
+}
+.markdown-section pre {
       background: #111 !important;
-    }
-
+}
     /* ── 側邊欄 ── */
-    .sidebar {
+.sidebar {
       background-color: #0a0a0a !important;
       border-right: 1px solid #222 !important;
-    }
-    .sidebar-nav li a,
-    .sidebar-nav li span,
-    .sidebar ul li a {
+}
+.sidebar-nav li a,
+.sidebar-nav li span,
+.sidebar ul li a {
       color: var(--base-color) !important;
-    }
-    .sidebar-nav li.active > a,
-    .sidebar-nav li > a.active {
+}
+.sidebar-nav li.active > a,
+.sidebar-nav li > a.active {
       color: #d4af37 !important;
       border-right: 2px solid #d4af37;
-    }
-    .app-name, .app-name a {
+}
+.app-name, .app-name a {
       color: #d4af37 !important;
-    }
-
+}
     /* ── 搜尋框 ── */
-    .search input {
+.search input {
       background: #111 !important;
       color: var(--base-color) !important;
       border: 1px solid #333 !important;
-    }
-    .search input::placeholder {
+}
+.search input::placeholder {
       color: #555 !important;
-    }
-    .search .results-panel {
+}
+.search .results-panel {
       background: #0d0d0d !important;
       border: 1px solid #333 !important;
-    }
-    .search .results-panel a {
+}
+.search .results-panel a {
       border-bottom: 1px solid #222 !important;
-    }
-    .search .results-panel .matching-post h2 {
+}
+.search .results-panel .matching-post h2 {
       color: #ffffff !important;
-    }
-    .search .results-panel .matching-post p {
+}
+.search .results-panel .matching-post p {
       color: var(--base-color) !important;
-    }
-
+}
     /* ── Tabs 插件 ── */
-    .docsify-tabs__tab {
+.docsify-tabs__tab {
       background: #111 !important;
       color: #777 !important;
       border: 1px solid #222 !important;
-    }
-    .docsify-tabs__tab--active {
+}
+.docsify-tabs__tab--active {
       background: #000 !important;
       color: #d4af37 !important;
       border-bottom: 2px solid #d4af37 !important;
-    }
-    .docsify-tabs__content {
+}
+.docsify-tabs__content {
       background: #0a0a0a !important;
       border: 1px solid #222 !important;
       color: var(--base-color) !important;
-    }
-
+}
     /* ── 表格 ── */
-    .markdown-section table tr {
+.markdown-section table tr {
       background: #0d0d0d !important;
       border-top: 1px solid #333 !important;
-    }
-    .markdown-section table tr:nth-child(2n) {
+}
+.markdown-section table tr:nth-child(2n) {
       background: #111 !important;
-    }
-    .markdown-section table th,
-    .markdown-section table td {
+}
+.markdown-section table th,
+.markdown-section table td {
       border: 1px solid #333 !important;
-    }
-
+}
     /* ── blockquote ── */
-    .markdown-section blockquote {
+.markdown-section blockquote {
       border-left: 4px solid #d4af37 !important;
       background: #0d0d0d !important;
-    }
-
+}
     /* ══════════════════════════════════════
-       漢堡選單按鈕：強制可見、金色橫線
-    ══════════════════════════════════════ */
-    .sidebar-toggle {
+漢堡選單按鈕：強制可見、金色橫線
+══════════════════════════════════════ */
+.sidebar-toggle {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
@@ -164,27 +150,25 @@
       flex-direction: column !important;
       justify-content: space-between !important;
       box-sizing: border-box !important;
-    }
-    .sidebar-toggle span {
+}
+.sidebar-toggle span {
       display: block !important;
       width: 100% !important;
       height: 2px !important;
       background: #d4af37 !important;
       border-radius: 2px !important;
-    }
-
+}
     /* ══════════════════════════════════════
-       主內容區：底部留出工具列空間
-    ══════════════════════════════════════ */
-    .markdown-section {
+主內容區：底部留出工具列空間
+══════════════════════════════════════ */
+.markdown-section {
       font-size: var(--base-font-size) !important;
       padding-bottom: calc(var(--toolbar-height) + 24px) !important;
-    }
-
+}
     /* ══════════════════════════════════════
-       底部工具列
-    ══════════════════════════════════════ */
-    .bottom-toolbar {
+底部工具列
+══════════════════════════════════════ */
+.bottom-toolbar {
       position: fixed;
       bottom: 0;
       left: 300px;
@@ -200,17 +184,15 @@
       backdrop-filter: blur(6px);
       box-sizing: border-box;
       gap: 8px;
-    }
-
-    .toolbar-nav,
-    .toolbar-font {
+}
+.toolbar-nav,
+.toolbar-font {
       display: flex;
       gap: 6px;
       align-items: center;
       flex-shrink: 0;
-    }
-
-    .bottom-toolbar button {
+}
+.bottom-toolbar button {
       background: #1a1a1a;
       color: #d4af37;
       border: 1px solid #3a3a3a;
@@ -221,44 +203,41 @@
       transition: background 0.15s, color 0.15s;
       white-space: nowrap;
       flex-shrink: 0;
-    }
-    .bottom-toolbar button:hover {
+}
+.bottom-toolbar button:hover {
       background: #d4af37;
       color: #000;
       border-color: #d4af37;
-    }
-
+}
     /* ══════════════════════════════════════
-       手機版 (≤768px)
-    ══════════════════════════════════════ */
+手機版 (≤768px)
+══════════════════════════════════════ */
     @media screen and (max-width: 768px) {
-      .bottom-toolbar {
+.bottom-toolbar {
         left: 0;
         padding: 0 10px;
         gap: 4px;
-      }
-      .bottom-toolbar button {
+}
+.bottom-toolbar button {
         padding: 6px 8px;
         font-size: 12px;
-      }
-    }
-    
+}
+}
     /* 側邊欄摺疊箭頭顏色 */
-    .sidebar-nav li:not(.collapse) > .section-link:after {
+.sidebar-nav li:not(.collapse) > .section-link:after {
       content: '▼';
       font-size: 10px;
       margin-left: 5px;
       color: var(--theme-color);
-    }
-    .sidebar-nav li.collapse > .section-link:after {
+}
+.sidebar-nav li.collapse > .section-link:after {
       content: '▶';
       color: var(--base-color);
-    }
+}
   </style>
 </head>
 <body>
   <div id="app">載入中...</div>
-
   <!-- 底部工具列 -->
   <div class="bottom-toolbar">
     <div class="toolbar-nav">
@@ -267,15 +246,14 @@
     </div>
     <div class="toolbar-font">
       <button onclick="changeFontSize(-2)" title="縮小文字">A−</button>
-      <button onclick="resetFontSize()"    title="重置字體">重置</button>
-      <button onclick="changeFontSize(2)"  title="放大文字">A+</button>
+      <button onclick="resetFontSize()" title="重置字體">重置</button>
+      <button onclick="changeFontSize(2)" title="放大文字">A+</button>
     </div>
   </div>
-
   <script>
     /* ════════════════════════════════
-       Docsify 設定與【無敵防護罩】機制
-    ════════════════════════════════ */
+Docsify 設定與終極解決方案
+════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
       loadSidebar: true,
@@ -295,7 +273,7 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 2. 確保換頁置頂
+          // 2. 換頁確實置頂
           hook.doneEach(function() {
             setTimeout(() => {
               window.scrollTo(0, 0);
@@ -304,50 +282,71 @@
             }, 100);
           });
 
-          // 3. 【終極解決方案】MutationObserver 無縫攔截
+          // 3. 【MutationObserver 版】手機側邊欄控制
+          // ─────────────────────────────────────────────────────────────
+          // 問題根源：Docsify 路由完成後在 JS 內部直接呼叫
+          //   body.classList.add('close')，不走 DOM 事件冒泡。
+          //   stopPropagation / setTimeout 都無法攔截。
+          //
+          // 解法：用 MutationObserver 直接監視 body.class 的變化，
+          //   一旦偵測到 close 被加入，立即移除，讓側邊欄保持開啟。
+          //   只有「漢堡鍵」或「點右側內容區」才真的允許關閉。
+          // ─────────────────────────────────────────────────────────────
           hook.mounted(function() {
-            const sidebar = document.querySelector('.sidebar');
-            if (!sidebar) return;
+            var _locked = true;    // true = 側邊欄應保持開啟（手機預設）
+            var _skipNext = false; // true = 下一次 class 變動是手動操作，允許關閉
 
-            let allowClose = true; // 預設允許 Docsify 關閉側邊欄
+            // MutationObserver：監視所有對 body.class 的修改
+            var observer = new MutationObserver(function() {
+              if (window.innerWidth > 768) return; // 桌機 / 橫式夠寬時不介入
 
-            // 觀察者：盯著 body，只要 Docsify 想關側邊欄 (移除 close class)，
-            // 但現在處於「鎖定狀態 (allowClose 為 false)」，我們就瞬間給它加回去！
-            const observer = new MutationObserver(function() {
-              if (window.innerWidth <= 768 && !allowClose && !document.body.classList.contains('close')) {
-                document.body.classList.add('close');
+              var hasClosed = document.body.classList.contains('close');
+
+              if (hasClosed) {
+                if (_skipNext) {
+                  // 手動操作（漢堡鍵 / 點內容區）→ 允許關閉
+                  _skipNext = false;
+                  _locked = false;
+                } else if (_locked) {
+                  // Docsify 路由自動關閉 → 立即撤銷
+                  document.body.classList.remove('close');
+                }
+              } else {
+                // sidebar 被打開（不管誰做的）→ 重設鎖定狀態
+                _skipNext = false;
+                _locked = true;
               }
             });
-            // 啟用觀察者
-            observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-            // 監聽側邊欄點擊
-            sidebar.addEventListener('click', function(e) {
-              if (window.innerWidth > 768) return; 
+            observer.observe(document.body, {
+              attributes: true,
+              attributeFilter: ['class']
+            });
 
-              const targetLink = e.target.closest('a');
-              if (!targetLink) return;
+            // 漢堡鍵：capture phase 先標記，讓它可以正常手動開關
+            var toggle = document.querySelector('.sidebar-toggle');
+            if (toggle) {
+              toggle.addEventListener('click', function() {
+                _skipNext = true;
+                // 點前是「開啟中」→ 即將關閉 → 解鎖；點前是「關閉中」→ 即將開啟 → 鎖定
+                _locked = document.body.classList.contains('close');
+              }, true); // capture = 比 docsify 更早執行
+            }
 
-              const li = targetLink.closest('li');
-              // 判定你點的是不是「目錄夾」
-              const isFolder = targetLink.classList.contains('section-link') || 
-                               (li && li.querySelector('ul'));
-
-              if (isFolder) {
-                // 點擊目錄夾：觸發防護罩！不准 Docsify 關閉側邊欄
-                allowClose = false;
-                
-                // 500毫秒後解除防護罩 (安全機制，避免卡住)
-                setTimeout(() => { allowClose = true; }, 500);
-              } else {
-                // 點擊真正的經文：解除防護罩，允許 Docsify 正常切換文章並收合
-                allowClose = true;
-              }
-            }, true); // 使用 true 確保我們在 Docsify 處理之前先做好標記
+            // 點右側內容區：手動關閉側邊欄，進入閱讀模式
+            var content = document.querySelector('.content');
+            if (content) {
+              content.addEventListener('click', function() {
+                if (window.innerWidth <= 768 && !document.body.classList.contains('close')) {
+                  _skipNext = true;
+                  _locked = false;
+                  document.body.classList.add('close');
+                }
+              });
+            }
           });
         }
       ],
-
       search: {
         maxAge: 86400000,
         paths: 'auto',
@@ -355,7 +354,6 @@
         noData: '找不到結果',
         depth: 6
       },
-
       tabs: {
         persist: true,
         sync: false,
@@ -365,42 +363,35 @@
       }
     };
   </script>
-
   <script>
     /* ════════════════════════════════
-       字體大小控制
-    ════════════════════════════════ */
+字體大小控制
+════════════════════════════════ */
     let currentSize = parseInt(localStorage.getItem('agama-font-size')) || 18;
     applyFontSize(currentSize);
-
     function changeFontSize(delta) {
       currentSize = Math.min(40, Math.max(12, currentSize + delta));
       applyFontSize(currentSize);
       localStorage.setItem('agama-font-size', currentSize);
     }
-
     function resetFontSize() {
       currentSize = 18;
       applyFontSize(currentSize);
       localStorage.removeItem('agama-font-size');
     }
-
     function applyFontSize(size) {
       document.documentElement.style.setProperty('--base-font-size', size + 'px');
     }
-
     /* ════════════════════════════════
-       上一篇 / 下一篇
-    ════════════════════════════════ */
-    let _sidebarPaths = null; 
-
+上一篇 / 下一篇 (獨立不受外掛干擾)
+════════════════════════════════ */
+    let _sidebarPaths = null;
     async function fetchSidebarPaths() {
       if (_sidebarPaths) return _sidebarPaths;
       try {
         const res = await fetch('_sidebar.md');
         if (!res.ok) throw new Error('fetch failed');
         const text = await res.text();
-
         const regex = /\[[^\]]+\]\((?!https?:\/\/)([^)#]+\.md)\)/g;
         const paths =[];
         let m;
@@ -417,11 +408,9 @@
         return[];
       }
     }
-
     function getCurrentPath() {
       return location.hash.replace(/^#\//, '').replace(/\.md$/, '');
     }
-
     async function goNextPage() {
       const paths = await fetchSidebarPaths();
       const current = getCurrentPath();
@@ -429,12 +418,11 @@
       if (idx !== -1 && idx < paths.length - 1) {
         location.hash = '#/' + paths[idx + 1];
       } else if (idx === -1 && paths.length > 0) {
-        location.hash = '#/' + paths[0]; 
+        location.hash = '#/' + paths[0];
       } else {
         alert('已經是最後一篇了！');
       }
     }
-
     async function goPrevPage() {
       const paths = await fetchSidebarPaths();
       const current = getCurrentPath();
@@ -442,15 +430,14 @@
       if (idx > 0) {
         location.hash = '#/' + paths[idx - 1];
       } else if (idx === -1 && paths.length > 0) {
-        location.hash = '#/' + paths[0]; 
+        location.hash = '#/' + paths[0];
       } else {
         alert('已經是第一篇了！');
       }
     }
-
+    // 每次換頁後清除快取
     window.addEventListener('hashchange', () => { _sidebarPaths = null; });
   </script>
-
   <script src="lib/docsify.min.js"></script>
   <script src="lib/plugins/search.min.js"></script>
   <script src="lib/plugins/docsify-tabs.min.js"></script>
