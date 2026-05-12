@@ -38,6 +38,8 @@
 
     body {
       background-color: var(--background);
+      margin: 0;
+      padding: 0;
     }
 
     h1, h2, h3, h4, h5, h6,
@@ -148,22 +150,24 @@
 
     /* ══════════════════════════════════════
        漢堡選單按鈕：強制可見、金色橫線
+       修正：不佔據內容空間（使用 fixed 且 z-index 高）
     ══════════════════════════════════════ */
     .sidebar-toggle {
       position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 40px !important;
-      height: 40px !important;
-      padding: 10px !important;
+      top: 8px !important;
+      left: 8px !important;
+      width: 36px !important;
+      height: 36px !important;
+      padding: 8px !important;
       cursor: pointer !important;
       z-index: 9999 !important;
       background: rgba(10,10,10,0.85) !important;
-      border-radius: 0 0 6px 0 !important;
+      border-radius: 4px !important;
       display: flex !important;
       flex-direction: column !important;
-      justify-content: space-between !important;
+      justify-content: space-around !important;
       box-sizing: border-box !important;
+      border: 1px solid #333 !important;
     }
     .sidebar-toggle span {
       display: block !important;
@@ -171,6 +175,11 @@
       height: 2px !important;
       background: #d4af37 !important;
       border-radius: 2px !important;
+    }
+
+    /* 主內容區：避免被漢堡按鈕遮蓋，加上 padding-top */
+    .content {
+      padding-top: 50px !important;
     }
 
     /* ══════════════════════════════════════
@@ -240,6 +249,18 @@
       .bottom-toolbar button {
         padding: 6px 8px;
         font-size: 12px;
+      }
+      /* 手機上漢堡按鈕稍微縮小 */
+      .sidebar-toggle {
+        top: 4px !important;
+        left: 4px !important;
+        width: 32px !important;
+        height: 32px !important;
+        padding: 6px !important;
+      }
+      /* 手機主內容 padding-top 調整 */
+      .content {
+        padding-top: 44px !important;
       }
     }
     
@@ -339,29 +360,6 @@
                 }
               }
             }, true); // 使用捕獲階段
-
-            // 可選：在側邊欄頂部加一個「關閉」按鈕
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '✕ 關閉';
-            closeBtn.style.cssText = `
-              position: absolute;
-              top: 10px;
-              right: 10px;
-              background: #1a1a1a;
-              color: #d4af37;
-              border: 1px solid #3a3a3a;
-              padding: 6px 12px;
-              cursor: pointer;
-              border-radius: 4px;
-              font-size: 13px;
-              z-index: 100;
-            `;
-            closeBtn.addEventListener('click', function() {
-              // 觸發 Docsify 的側邊欄關閉（模擬點擊漢堡按鈕或遮罩）
-              document.querySelector('.sidebar-toggle')?.click();
-            });
-            sidebar.style.position = 'relative';
-            sidebar.appendChild(closeBtn);
           });
         }
       ],
