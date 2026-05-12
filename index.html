@@ -18,6 +18,7 @@
       --theme-color:     #d4af37;
       --base-font-size:  18px;
       --toolbar-height:  52px;
+      --my-sidebar-width: 300px;
     }
 
     /* ══════════════════════════════════════
@@ -66,25 +67,6 @@
     }
     .markdown-section pre {
       background: #111 !important;
-    }
-
-    /* ── 側邊欄 ── */
-    .sidebar {
-      background-color: #0a0a0a !important;
-      border-right: 1px solid #222 !important;
-    }
-    .sidebar-nav li a,
-    .sidebar-nav li span,
-    .sidebar ul li a {
-      color: var(--base-color) !important;
-    }
-    .sidebar-nav li.active > a,
-    .sidebar-nav li > a.active {
-      color: #d4af37 !important;
-      border-right: 2px solid #d4af37;
-    }
-    .app-name, .app-name a {
-      color: #d4af37 !important;
     }
 
     /* ── 搜尋框 ── */
@@ -147,47 +129,145 @@
     }
 
     /* ══════════════════════════════════════
-       漢堡選單按鈕：強制可見、金色橫線
+       【終極脫鉤】徹底廢除 Docsify 預設側邊欄行為
     ══════════════════════════════════════ */
+    
+    /* 1. 殺掉 Docsify 預設的漢堡按鈕 */
     .sidebar-toggle {
+      display: none !important; 
+    }
+
+    /* 2. 側邊欄本體：完全由我們自己的 class 控制 */
+    .sidebar {
       position: fixed !important;
       top: 0 !important;
+      bottom: 0 !important;
       left: 0 !important;
-      width: 40px !important;
-      height: 40px !important;
-      padding: 10px !important;
-      cursor: pointer !important;
-      z-index: 9999 !important;
-      background: rgba(10,10,10,0.85) !important;
-      border-radius: 0 0 6px 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: space-between !important;
-      box-sizing: border-box !important;
+      width: var(--my-sidebar-width) !important;
+      z-index: 1000 !important;
+      background-color: #0a0a0a !important;
+      border-right: 1px solid #222 !important;
+      transform: translateX(0) !important; /* 預設為展開 */
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-    .sidebar-toggle span {
-      display: block !important;
-      width: 100% !important;
-      height: 2px !important;
-      background: #d4af37 !important;
-      border-radius: 2px !important;
+
+    /* 當 body 被加上 my-sidebar-closed 時才收合 (向左平移隱藏) */
+    body.my-sidebar-closed .sidebar {
+      transform: translateX(calc(-1 * var(--my-sidebar-width))) !important;
+    }
+
+    /* 側邊欄內部文字 */
+    .sidebar-nav li a,
+    .sidebar-nav li span,
+    .sidebar ul li a {
+      color: var(--base-color) !important;
+    }
+    .sidebar-nav li.active > a,
+    .sidebar-nav li > a.active {
+      color: #d4af37 !important;
+      border-right: 2px solid #d4af37;
+    }
+    .app-name, .app-name a {
+      color: #d4af37 !important;
+    }
+
+    /* 3. 內容區：不理會 Docsify 的推擠邏輯，由我們自己定 */
+    .content {
+      position: absolute !important;
+      top: 0 !important;
+      right: 0 !important;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .bottom-toolbar {
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    /* --- 平板/電腦模式 (寬度 > 768px) --- */
+    @media screen and (min-width: 769px) {
+      body .content { left: var(--my-sidebar-width) !important; }
+      body.my-sidebar-closed .content { left: 0 !important; }
+      body .bottom-toolbar { left: var(--my-sidebar-width) !important; }
+      body.my-sidebar-closed .bottom-toolbar { left: 0 !important; }
+    }
+
+    /* --- 手機模式 (寬度 <= 768px) --- */
+    /* 側邊欄變成「浮動蓋在上面」，內容永遠置左不推擠 */
+    @media screen and (max-width: 768px) {
+      body .content { 
+        left: 0 !important; 
+        width: 100% !important; 
+        padding-left: 20px !important; 
+      }
+      body .bottom-toolbar { 
+        left: 0 !important; 
+        padding: 0 10px !important; 
+        gap: 4px !important; 
+      }
+      .bottom-toolbar button {
+        padding: 6px 8px !important;
+        font-size: 12px !important;
+      }
     }
 
     /* ══════════════════════════════════════
-       主內容區：底部留出工具列空間
+       自訂左側邊緣跳色直線與開關按鈕
+    ══════════════════════════════════════ */
+    
+    /* 左側跳色金線 */
+    .edge-line {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 4px;
+      background-color: var(--theme-color);
+      z-index: 998;
+    }
+
+    /* 手動開關按鈕 */
+    .my-toggle-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      left: var(--my-sidebar-width); /* 展開時，貼著側邊欄右緣 */
+      width: 32px;
+      height: 64px;
+      background-color: var(--theme-color);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1001;
+      border-radius: 0 8px 8px 0;
+      box-shadow: 3px 0 8px rgba(0,0,0,0.6);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+      user-select: none;
+    }
+
+    .my-toggle-btn:active {
+      background-color: #e6c552;
+    }
+
+    /* 收合時，按鈕回到最左邊，貼著金線 */
+    body.my-sidebar-closed .my-toggle-btn {
+      left: 4px;
+    }
+
+    /* ══════════════════════════════════════
+       底部工具列排版細節
     ══════════════════════════════════════ */
     .markdown-section {
       font-size: var(--base-font-size) !important;
       padding-bottom: calc(var(--toolbar-height) + 24px) !important;
     }
 
-    /* ══════════════════════════════════════
-       底部工具列
-    ══════════════════════════════════════ */
     .bottom-toolbar {
       position: fixed;
       bottom: 0;
-      left: 300px;
       right: 0;
       height: var(--toolbar-height);
       z-index: 200;
@@ -228,21 +308,6 @@
       border-color: #d4af37;
     }
 
-    /* ══════════════════════════════════════
-       手機版 (≤768px)
-    ══════════════════════════════════════ */
-    @media screen and (max-width: 768px) {
-      .bottom-toolbar {
-        left: 0;
-        padding: 0 10px;
-        gap: 4px;
-      }
-      .bottom-toolbar button {
-        padding: 6px 8px;
-        font-size: 12px;
-      }
-    }
-    
     /* 側邊欄摺疊箭頭顏色 */
     .sidebar-nav li:not(.collapse) > .section-link:after {
       content: '▼';
@@ -257,6 +322,11 @@
   </style>
 </head>
 <body>
+
+  <!-- 自訂側邊欄邊緣線與開關 -->
+  <div class="edge-line"></div>
+  <div id="my-toggle-btn" class="my-toggle-btn" onclick="toggleMySidebar()">◀</div>
+
   <div id="app">載入中...</div>
 
   <!-- 底部工具列 -->
@@ -274,44 +344,31 @@
 
   <script>
     /* ════════════════════════════════
-       【核心駭客攔截】
-       我們不攔截點擊事件，而是攔截瀏覽器的 classList 底層操作！
-       讓 Docsify 就算想關側邊欄，也因為沒有權限而無效。
+       純手動側邊欄控制邏輯
     ════════════════════════════════ */
-    const originalRemove = document.body.classList.remove;
-    document.body.classList.remove = function(...args) {
-      // 只要觸發了防護罩 (_lockSidebar)，就沒收 Docsify 關閉側邊欄的能力
-      if (args.includes('close') && window._lockSidebar) return;
-      originalRemove.apply(this, args);
-    };
-
-    // 在最高層級監聽使用者的點擊意圖
-    window.addEventListener('click', function(e) {
-      if (window.innerWidth > 68) return; 
-
-      const a = e.target.closest('a');
-      if (!a) return;
-
-      if (a.closest('.sidebar')) {
-        const li = a.closest('li');
-        // 判斷點擊的是不是包含清單的「目錄」
-        const isFolder = a.classList.contains('section-link') || (li && li.querySelector('ul'));
-
-        if (isFolder) {
-          // 啟動防護罩！鎖死 Docsify 關閉側邊欄的功能
-          window._lockSidebar = true;
-          // 50毫秒後 (等 Docsify 處理完畢) 解除防護罩
-          setTimeout(() => { window._lockSidebar = false; }, 50);
-        } else {
-          // 如果點擊的是真正的文章，允許正常關閉
-          window._lockSidebar = false;
-        }
+    function toggleMySidebar() {
+      const body = document.body;
+      const btn = document.getElementById('my-toggle-btn');
+      
+      if (body.classList.contains('my-sidebar-closed')) {
+        // 展開側邊欄
+        body.classList.remove('my-sidebar-closed');
+        btn.innerHTML = '◀'; // 箭頭朝左，暗示可以收合
+      } else {
+        // 收合側邊欄
+        body.classList.add('my-sidebar-closed');
+        btn.innerHTML = '▶'; // 箭頭朝右，暗示可以展開
       }
-    }, true);
+    }
 
+    // 頁面初次載入時，如果是手機螢幕寬度，預設先幫使用者把側邊欄收起來，讓畫面乾淨
+    if (window.innerWidth <= 768) {
+      document.body.classList.add('my-sidebar-closed');
+      document.getElementById('my-toggle-btn').innerHTML = '▶';
+    }
 
     /* ════════════════════════════════
-       Docsify 設定
+       Docsify 基本設定 (乾淨版)
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -332,17 +389,16 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 確保換頁置頂
+          // 換頁後強制置頂
           hook.doneEach(function() {
             setTimeout(() => {
               window.scrollTo(0, 0);
               const mainContent = document.querySelector('.content');
               if (mainContent) mainContent.scrollTop = 0;
-            }, 100);
+            }, 50);
           });
         }
       ],
-
       search: {
         maxAge: 86400000,
         paths: 'auto',
@@ -350,7 +406,6 @@
         noData: '找不到結果',
         depth: 6
       },
-
       tabs: {
         persist: true,
         sync: false,
