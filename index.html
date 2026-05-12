@@ -274,7 +274,7 @@
 
   <script>
     /* ════════════════════════════════
-       Docsify 設定與最終修復方案
+       Docsify 設定與【無敵防護罩】機制
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -304,31 +304,46 @@
             }, 100);
           });
 
-          // 3. 【正解】手機版點擊目錄保持展開
+          // 3. 【終極解決方案】MutationObserver 無縫攔截
           hook.mounted(function() {
             const sidebar = document.querySelector('.sidebar');
-            if (sidebar) {
-              sidebar.addEventListener('click', function(e) {
-                if (window.innerWidth > 768) return; 
+            if (!sidebar) return;
 
-                const targetLink = e.target.closest('a');
-                if (!targetLink) return;
+            let allowClose = true; // 預設允許 Docsify 關閉側邊欄
 
-                // 判斷點擊的是不是「折疊外掛產生的目錄夾」
-                // 外掛會為資料夾加上 'section-link' 這個 class
-                const isFolder = targetLink.classList.contains('section-link') || 
-                                 (targetLink.closest('li') && targetLink.closest('li').querySelector('ul'));
+            // 觀察者：盯著 body，只要 Docsify 想關側邊欄 (移除 close class)，
+            // 但現在處於「鎖定狀態 (allowClose 為 false)」，我們就瞬間給它加回去！
+            const observer = new MutationObserver(function() {
+              if (window.innerWidth <= 768 && !allowClose && !document.body.classList.contains('close')) {
+                document.body.classList.add('close');
+              }
+            });
+            // 啟用觀察者
+            observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-                if (isFolder) {
-                  // 重點來了：Docsify 核心會在點擊後移除 body 上的 close 標籤 (導致側邊欄關閉)
-                  // 我們用極短的延遲，把 close 標籤「加回來 (add)」，側邊欄就會乖乖保持開啟！
-                  setTimeout(() => {
-                    document.body.classList.add('close');
-                  }, 10);
-                }
-                // 如果點的是最終經文 (沒有 ul 的 li)，什麼都不做，讓它自然關閉！
-              });
-            }
+            // 監聽側邊欄點擊
+            sidebar.addEventListener('click', function(e) {
+              if (window.innerWidth > 768) return; 
+
+              const targetLink = e.target.closest('a');
+              if (!targetLink) return;
+
+              const li = targetLink.closest('li');
+              // 判定你點的是不是「目錄夾」
+              const isFolder = targetLink.classList.contains('section-link') || 
+                               (li && li.querySelector('ul'));
+
+              if (isFolder) {
+                // 點擊目錄夾：觸發防護罩！不准 Docsify 關閉側邊欄
+                allowClose = false;
+                
+                // 500毫秒後解除防護罩 (安全機制，避免卡住)
+                setTimeout(() => { allowClose = true; }, 500);
+              } else {
+                // 點擊真正的經文：解除防護罩，允許 Docsify 正常切換文章並收合
+                allowClose = true;
+              }
+            }, true); // 使用 true 確保我們在 Docsify 處理之前先做好標記
           });
         }
       ],
