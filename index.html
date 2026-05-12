@@ -276,8 +276,8 @@
   </div>
 
 <script>
-    /* ════════════════════════════════
-       Docsify 設定 (唯一宣告，請勿重複)
+/* ════════════════════════════════
+       Docsify 設定
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -286,21 +286,20 @@
         '/.*/_sidebar.md': '/_sidebar.md'
       },
       subMaxLevel: 2,
-      auto2top: true, // Docsify 內建換頁置頂
+      auto2top: true,
       markdown: {
         gfm: true,
         breaks: true
       },
       plugins: [
         function(hook, vm) {
-          // 1. 修正中文粗體：marked 對中文邊界有 bug
+          // 1. 修正中文粗體
           hook.beforeEach(function(content) {
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 2. 徹底解決「換頁置頂」問題 (包含下一篇按鈕)
+          // 2. 徹底解決換頁置頂
           hook.doneEach(function() {
-            // 延遲一點點確保 DOM 已完全渲染
             setTimeout(() => {
               window.scrollTo(0, 0);
               const mainContent = document.querySelector('.content');
@@ -308,23 +307,34 @@
             }, 100);
           });
 
-          // 3. 手機版優化：點擊目錄夾不收合側邊欄
+          // 3. 手機版優化：點擊目錄不收合側邊欄，點擊文章才收合
           hook.mounted(function() {
             const sidebar = document.querySelector('.sidebar');
             if (sidebar) {
-              // 使用「捕獲階段」監聽點擊
               sidebar.addEventListener('click', function(e) {
-                // 只有在手機模式 (寬度 <= 768) 才執行
-                if (window.innerWidth <= 768) {
-                  const li = e.target.closest('li');
-                  // 如果點擊的是有子選單(ul)的項目，或者是摺疊插件的箭頭
-                  if (li && (li.querySelector('ul') || e.target.classList.contains('section-link'))) {
-                    // 阻止事件傳遞給 Docsify 的 body 監聽器
-                    // 這樣就不會觸發「點擊側邊欄關閉」的預設行為
-                    e.stopPropagation();
-                  }
+                if (window.innerWidth > 768) return; // 僅限手機模式執行
+
+                const target = e.target;
+                // 找到被點擊的連結 (a 標籤)
+                const a = target.closest('a');
+                if (!a) return;
+
+                const li = a.closest('li');
+                // 判斷這是不是一個「資料夾」（底下有子選單 ul）
+                // 或者它是不是摺疊插件產生的 section-link
+                const isFolder = li && (li.querySelector('ul') || a.classList.contains('section-link'));
+
+                if (isFolder) {
+                  // 如果點的是資料夾，我們允許事件冒泡（讓摺疊插件運作）
+                  // 但我們「立刻」把 Docsify 試圖加上去的 'close' class 移除掉
+                  // 這樣側邊欄就不會縮回去了
+                  setTimeout(() => {
+                    document.body.classList.remove('close');
+                  }, 50); 
+                } else {
+                  // 如果點的是真正的文章連結 (沒子目錄了)，就放行讓它自然收合
                 }
-              }, true); 
+              });
             }
           });
         }
