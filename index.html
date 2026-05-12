@@ -277,7 +277,7 @@
 
 <script>
     /* ════════════════════════════════
-       Docsify 設定
+       Docsify 設定 (唯一宣告，請勿重複)
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -286,21 +286,46 @@
         '/.*/_sidebar.md': '/_sidebar.md'
       },
       subMaxLevel: 2,
-      auto2top: true,
+      auto2top: true, // Docsify 內建換頁置頂
       markdown: {
         gfm: true,
         breaks: true
       },
-      plugins:[
+      plugins: [
         function(hook, vm) {
-          // 1. 修正中文粗體：marked 對中文邊界有 bug，用 beforeEach 預處理
+          // 1. 修正中文粗體：marked 對中文邊界有 bug
           hook.beforeEach(function(content) {
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 2. 確保每一次換頁(包含按下一頁)載入完畢後，強制捲動到最頂端
+          // 2. 徹底解決「換頁置頂」問題 (包含下一篇按鈕)
           hook.doneEach(function() {
-            window.scrollTo(0, 0);
+            // 延遲一點點確保 DOM 已完全渲染
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+              const mainContent = document.querySelector('.content');
+              if (mainContent) mainContent.scrollTop = 0;
+            }, 100);
+          });
+
+          // 3. 手機版優化：點擊目錄夾不收合側邊欄
+          hook.mounted(function() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+              // 使用「捕獲階段」監聽點擊
+              sidebar.addEventListener('click', function(e) {
+                // 只有在手機模式 (寬度 <= 768) 才執行
+                if (window.innerWidth <= 768) {
+                  const li = e.target.closest('li');
+                  // 如果點擊的是有子選單(ul)的項目，或者是摺疊插件的箭頭
+                  if (li && (li.querySelector('ul') || e.target.classList.contains('section-link'))) {
+                    // 阻止事件傳遞給 Docsify 的 body 監聽器
+                    // 這樣就不會觸發「點擊側邊欄關閉」的預設行為
+                    e.stopPropagation();
+                  }
+                }
+              }, true); 
+            }
           });
         }
       ],
@@ -347,19 +372,21 @@
     }
 
     /* ════════════════════════════════
-       上一篇 / 下一篇 (修復代碼結構錯誤)
+       上一篇 / 下一篇 功能
     ════════════════════════════════ */
     let _sidebarPaths = null; 
 
     async function fetchSidebarPaths() {
       if (_sidebarPaths) return _sidebarPaths;
       try {
+        // 使用相對路徑，適應 GitHub Pages 子目錄
         const res = await fetch('_sidebar.md');
         if (!res.ok) throw new Error('fetch failed');
         const text = await res.text();
 
+        // 抓取所有 markdown 連結路徑
         const regex = /\[[^\]]+\]\((?!https?:\/\/)([^)#]+\.md)\)/g;
-        const paths =[];
+        const paths = [];
         let m;
         while ((m = regex.exec(text)) !== null) {
           const clean = m[1].replace(/^\.?\//, '').replace(/\.md$/, '');
@@ -371,7 +398,7 @@
         return paths;
       } catch (e) {
         console.warn('無法讀取 _sidebar.md', e);
-        return[];
+        return [];
       }
     }
 
@@ -386,7 +413,8 @@
       if (idx !== -1 && idx < paths.length - 1) {
         location.hash = '#/' + paths[idx + 1];
       } else if (idx === -1 && paths.length > 0) {
-        location.hash = '#/' + paths[0]; // 不在列表內(例如首頁)，直接跳第一篇
+        // 如果在首頁，跳轉到第一篇
+        location.hash = '#/' + paths[0];
       } else {
         alert('已經是最後一篇了！');
       }
@@ -398,14 +426,12 @@
       const idx = paths.indexOf(current);
       if (idx > 0) {
         location.hash = '#/' + paths[idx - 1];
-      } else if (idx === -1 && paths.length > 0) {
-        location.hash = '#/' + paths[0]; 
       } else {
         alert('已經是第一篇了！');
       }
     }
 
-    // 每次換頁後清除快取
+    // 換頁時清除快取，確保同步最新目錄
     window.addEventListener('hashchange', () => { _sidebarPaths = null; });
   </script>
 
