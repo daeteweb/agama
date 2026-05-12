@@ -282,67 +282,34 @@ Docsify 設定與終極解決方案
             }, 100);
           });
 
-          // 3. 【MutationObserver 版】手機側邊欄控制
-          // ─────────────────────────────────────────────────────────────
-          // 問題根源：Docsify 路由完成後在 JS 內部直接呼叫
-          //   body.classList.add('close')，不走 DOM 事件冒泡。
-          //   stopPropagation / setTimeout 都無法攔截。
+          // 3. 【方案二：手動關閉】手機側邊欄控制
+          // ─────────────────────────────────────────────────────────
+          // 問題根源：Docsify 的 mobile close 發生在「路由層」，
+          //   每次 hash 變更後會在 doneEach 前自動加上 body.close。
+          //   用 stopPropagation 攔截 click 事件無法解決此問題。
           //
-          // 解法：用 MutationObserver 直接監視 body.class 的變化，
-          //   一旦偵測到 close 被加入，立即移除，讓側邊欄保持開啟。
-          //   只有「漢堡鍵」或「點右側內容區」才真的允許關閉。
-          // ─────────────────────────────────────────────────────────────
+          // 解法：在 doneEach 渲染完成後，把 body.close 移除，
+          //   讓側邊欄保持開啟。使用者需手動點 ☰ 或點右側內容區關閉。
+          // ─────────────────────────────────────────────────────────
           hook.mounted(function() {
-            var _locked = true;    // true = 側邊欄應保持開啟（手機預設）
-            var _skipNext = false; // true = 下一次 class 變動是手動操作，允許關閉
-
-            // MutationObserver：監視所有對 body.class 的修改
-            var observer = new MutationObserver(function() {
-              if (window.innerWidth > 768) return; // 桌機 / 橫式夠寬時不介入
-
-              var hasClosed = document.body.classList.contains('close');
-
-              if (hasClosed) {
-                if (_skipNext) {
-                  // 手動操作（漢堡鍵 / 點內容區）→ 允許關閉
-                  _skipNext = false;
-                  _locked = false;
-                } else if (_locked) {
-                  // Docsify 路由自動關閉 → 立即撤銷
-                  document.body.classList.remove('close');
-                }
-              } else {
-                // sidebar 被打開（不管誰做的）→ 重設鎖定狀態
-                _skipNext = false;
-                _locked = true;
-              }
-            });
-
-            observer.observe(document.body, {
-              attributes: true,
-              attributeFilter: ['class']
-            });
-
-            // 漢堡鍵：capture phase 先標記，讓它可以正常手動開關
-            var toggle = document.querySelector('.sidebar-toggle');
-            if (toggle) {
-              toggle.addEventListener('click', function() {
-                _skipNext = true;
-                // 點前是「開啟中」→ 即將關閉 → 解鎖；點前是「關閉中」→ 即將開啟 → 鎖定
-                _locked = document.body.classList.contains('close');
-              }, true); // capture = 比 docsify 更早執行
-            }
-
-            // 點右側內容區：手動關閉側邊欄，進入閱讀模式
+            // 點右側主內容區時，關閉側邊欄（還原閱讀版面）
             var content = document.querySelector('.content');
             if (content) {
               content.addEventListener('click', function() {
-                if (window.innerWidth <= 768 && !document.body.classList.contains('close')) {
-                  _skipNext = true;
-                  _locked = false;
+                if (window.innerWidth <= 768) {
                   document.body.classList.add('close');
                 }
               });
+            }
+          });
+
+          hook.doneEach(function() {
+            // 手機版：路由渲染完成後，把 Docsify 自動加的 close 移除
+            // 讓側邊欄保持開啟，直到使用者手動關閉
+            if (window.innerWidth <= 768) {
+              setTimeout(function() {
+                document.body.classList.remove('close');
+              }, 60);
             }
           });
         }
