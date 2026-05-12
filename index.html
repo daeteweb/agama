@@ -377,7 +377,7 @@
         '/.*/_sidebar.md': '/_sidebar.md'
       },
       subMaxLevel: 2,
-      auto2top: true,
+      auto2top: true, // 保留此設定，但我們需要額外處理自訂容器捲動
       markdown: {
         gfm: true,
         breaks: true
@@ -389,13 +389,15 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 換頁後強制置頂
+          // 【修改點】換頁後強制置頂：增加延遲時間，並明確針對 .content 容器捲動
           hook.doneEach(function() {
             setTimeout(() => {
-              window.scrollTo(0, 0);
+              window.scrollTo({ top: 0, behavior: 'instant' }); // 視窗回到最上方
               const mainContent = document.querySelector('.content');
-              if (mainContent) mainContent.scrollTop = 0;
-            }, 50);
+              if (mainContent) {
+                mainContent.scrollTop = 0; // 因為你的 .content 是 absolute，必須針對它捲動
+              }
+            }, 250); // 從 50ms 改為 250ms，確保內容已渲染完成
           });
         }
       ],
@@ -499,6 +501,17 @@
     }
 
     window.addEventListener('hashchange', () => { _sidebarPaths = null; });
+  </script>
+
+  <!-- 【新增】全域監聽 hash 變化，確保無論點擊哪裡都會捲回頂端 -->
+  <script>
+    window.addEventListener('hashchange', () => {
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        const mainContent = document.querySelector('.content');
+        if (mainContent) mainContent.scrollTop = 0;
+      }, 300); // 給予較充裕的時間讓 Docsify 完成 DOM 切換與渲染
+    });
   </script>
 
   <script src="lib/docsify.min.js"></script>
