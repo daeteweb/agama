@@ -38,8 +38,6 @@
 
     body {
       background-color: var(--background);
-      margin: 0;
-      padding: 0;
     }
 
     h1, h2, h3, h4, h5, h6,
@@ -150,24 +148,22 @@
 
     /* ══════════════════════════════════════
        漢堡選單按鈕：強制可見、金色橫線
-       修正：不佔據內容空間（使用 fixed 且 z-index 高）
     ══════════════════════════════════════ */
     .sidebar-toggle {
       position: fixed !important;
-      top: 8px !important;
-      left: 8px !important;
-      width: 36px !important;
-      height: 36px !important;
-      padding: 8px !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 40px !important;
+      height: 40px !important;
+      padding: 10px !important;
       cursor: pointer !important;
       z-index: 9999 !important;
       background: rgba(10,10,10,0.85) !important;
-      border-radius: 4px !important;
+      border-radius: 0 0 6px 0 !important;
       display: flex !important;
       flex-direction: column !important;
-      justify-content: space-around !important;
+      justify-content: space-between !important;
       box-sizing: border-box !important;
-      border: 1px solid #333 !important;
     }
     .sidebar-toggle span {
       display: block !important;
@@ -175,11 +171,6 @@
       height: 2px !important;
       background: #d4af37 !important;
       border-radius: 2px !important;
-    }
-
-    /* 主內容區：避免被漢堡按鈕遮蓋，加上 padding-top */
-    .content {
-      padding-top: 50px !important;
     }
 
     /* ══════════════════════════════════════
@@ -250,18 +241,6 @@
         padding: 6px 8px;
         font-size: 12px;
       }
-      /* 手機上漢堡按鈕稍微縮小 */
-      .sidebar-toggle {
-        top: 4px !important;
-        left: 4px !important;
-        width: 32px !important;
-        height: 32px !important;
-        padding: 6px !important;
-      }
-      /* 手機主內容 padding-top 調整 */
-      .content {
-        padding-top: 44px !important;
-      }
     }
     
     /* 側邊欄摺疊箭頭顏色 */
@@ -316,7 +295,7 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 2. 換頁置頂
+          // 2. 換頁確實置頂
           hook.doneEach(function() {
             setTimeout(() => {
               window.scrollTo(0, 0);
@@ -325,41 +304,40 @@
             }, 100);
           });
 
-          // 3. 手機側邊欄：不自動關閉，改用手動關閉
+          // 3. 【完美版】手機側邊欄控制
           hook.mounted(function() {
             const sidebar = document.querySelector('.sidebar');
-            if (!sidebar) return;
+            if (sidebar) {
+              // 這次改用標準的「冒泡階段」，讓折疊外掛先執行，我們再來決定要不要關閉側邊欄
+              sidebar.addEventListener('click', function(e) {
+                // 如果是電腦版寬度，不需要介入
+                if (window.innerWidth > 768) return; 
 
-            // 在捕獲階段攔截所有點擊
-            sidebar.addEventListener('click', function(e) {
-              if (window.innerWidth > 768) return; // 桌機不干預
+                const targetLink = e.target.closest('a');
+                if (!targetLink) return;
 
-              // 攔截所有 <a> 連結（包括最終經文和資料夾標題）
-              const a = e.target.closest('a');
-              if (a) {
-                // 阻止 Docsify 預設的關閉側邊欄行為
-                e.stopPropagation();
-                e.preventDefault();
+                const li = targetLink.closest('li');
+                // 檢查這個連結底下有沒有子目錄 (ul)
+                const isFolder = li && li.querySelector('ul');
 
-                const href = a.getAttribute('href');
-                if (href && href.startsWith('#/')) {
-                  // 跳轉到目標頁面，但不關閉側邊欄
-                  location.hash = href;
+                /* 
+                 * 【選項 A】(目前啟用的完美體驗)：
+                 * 如果點的是資料夾，阻止側邊欄關閉。
+                 * 如果點的是最底層的經文，側邊欄會自動關閉。
+                 */
+                if (isFolder) {
+                  e.stopPropagation(); // 阻止訊號傳到 Docsify 核心，側邊欄保持開啟
                 }
-                return;
-              }
 
-              // 處理資料夾展開/收合（點擊 li 但不在 a 或 ul 內）
-              const li = e.target.closest('li');
-              if (li) {
-                const ul = li.querySelector('ul');
-                if (ul && !ul.contains(e.target)) {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  li.classList.toggle('collapse');
-                }
-              }
-            }, true); // 使用捕獲階段
+                /* 
+                 * 【選項 B】(絕對不自動關閉)：
+                 * 如果你希望不管點什麼，側邊欄都「永遠不會自動收起來」，必須手動點暗色背景才能關。
+                 * 請把上面的 if (isFolder) { ... } 刪掉，直接改成這一行：
+                 * 
+                 * e.stopPropagation();
+                 */
+              });
+            }
           });
         }
       ],
@@ -406,7 +384,7 @@
     }
 
     /* ════════════════════════════════
-       上一篇 / 下一篇
+       上一篇 / 下一篇 (獨立不受外掛干擾)
     ════════════════════════════════ */
     let _sidebarPaths = null; 
 
