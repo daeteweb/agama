@@ -129,15 +129,12 @@
     }
 
     /* ══════════════════════════════════════
-       【終極脫鉤】徹底廢除 Docsify 預設側邊欄行為
+       徹底廢除 Docsify 預設側邊欄行為
     ══════════════════════════════════════ */
-    
-    /* 1. 殺掉 Docsify 預設的漢堡按鈕 */
     .sidebar-toggle {
       display: none !important; 
     }
 
-    /* 2. 側邊欄本體：完全由我們自己的 class 控制 */
     .sidebar {
       position: fixed !important;
       top: 0 !important;
@@ -147,16 +144,14 @@
       z-index: 1000 !important;
       background-color: #0a0a0a !important;
       border-right: 1px solid #222 !important;
-      transform: translateX(0) !important; /* 預設為展開 */
+      transform: translateX(0) !important;
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    /* 當 body 被加上 my-sidebar-closed 時才收合 (向左平移隱藏) */
     body.my-sidebar-closed .sidebar {
       transform: translateX(calc(-1 * var(--my-sidebar-width))) !important;
     }
 
-    /* 側邊欄內部文字 */
     .sidebar-nav li a,
     .sidebar-nav li span,
     .sidebar ul li a {
@@ -171,7 +166,6 @@
       color: #d4af37 !important;
     }
 
-    /* 3. 內容區：不理會 Docsify 的推擠邏輯，由我們自己定 */
     .content {
       position: absolute !important;
       top: 0 !important;
@@ -183,7 +177,6 @@
       transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
-    /* --- 平板/電腦模式 (寬度 > 768px) --- */
     @media screen and (min-width: 769px) {
       body .content { left: var(--my-sidebar-width) !important; }
       body.my-sidebar-closed .content { left: 0 !important; }
@@ -191,8 +184,6 @@
       body.my-sidebar-closed .bottom-toolbar { left: 0 !important; }
     }
 
-    /* --- 手機模式 (寬度 <= 768px) --- */
-    /* 側邊欄變成「浮動蓋在上面」，內容永遠置左不推擠 */
     @media screen and (max-width: 768px) {
       body .content { 
         left: 0 !important; 
@@ -213,8 +204,6 @@
     /* ══════════════════════════════════════
        自訂左側邊緣跳色直線與開關按鈕
     ══════════════════════════════════════ */
-    
-    /* 左側跳色金線 */
     .edge-line {
       position: fixed;
       top: 0;
@@ -225,20 +214,19 @@
       z-index: 998;
     }
 
-    /* 手動開關按鈕 (已縮小並上移) */
     .my-toggle-btn {
       position: fixed;
-      top: 20%; /* 【變更】從 50% 移到 20% (偏上方) */
+      top: 20%;
       transform: translateY(-50%);
       left: var(--my-sidebar-width); 
-      width: 25px;  /* 【變更】縮小寬度 */
-      height: 45px; /* 【變更】縮小高度 */
+      width: 25px;
+      height: 45px;
       background-color: var(--theme-color);
       color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px; /* 【變更】縮小箭頭圖標 */
+      font-size: 14px;
       font-weight: bold;
       cursor: pointer;
       z-index: 1001;
@@ -252,9 +240,53 @@
       background-color: #e6c552;
     }
 
-    /* 收合時，按鈕回到最左邊，貼著金線 */
     body.my-sidebar-closed .my-toggle-btn {
       left: 4px;
+    }
+
+    /* ══════════════════════════════════════
+       【新增】浮動標籤導航列 (段落跳轉)
+    ══════════════════════════════════════ */
+    .floating-toc {
+      position: sticky;
+      top: 0;
+      z-index: 150;
+      display: flex;
+      flex-wrap: wrap; 
+      gap: 8px;
+      padding: 12px 0;
+      /* 半透明黑色背景 + 毛玻璃效果，讓滑過去的字不會干擾閱讀 */
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #333;
+      margin-bottom: 24px;
+      /* 抵銷 docsify 預設的 padding 讓它貼齊頂部 */
+      margin-top: -15px; 
+    }
+
+    .floating-toc button {
+      background: #1a1a1a;
+      color: var(--theme-color);
+      border: 1px solid #3a3a3a;
+      padding: 6px 14px;
+      border-radius: 20px; /* 圓角膠囊造型 */
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .floating-toc button:hover {
+      background: var(--theme-color);
+      color: #000;
+    }
+
+    /* 點擊跳轉後，為了不讓標題被浮動列蓋住，給標題留出上方空間 */
+    .markdown-section h1,
+    .markdown-section h2,
+    .markdown-section h3,
+    .markdown-section h4 {
+      scroll-margin-top: 70px !important;
     }
 
     /* ══════════════════════════════════════
@@ -308,7 +340,6 @@
       border-color: #d4af37;
     }
 
-    /* 側邊欄摺疊箭頭顏色 */
     .sidebar-nav li:not(.collapse) > .section-link:after {
       content: '▼';
       font-size: 10px;
@@ -351,24 +382,21 @@
       const btn = document.getElementById('my-toggle-btn');
       
       if (body.classList.contains('my-sidebar-closed')) {
-        // 展開側邊欄
         body.classList.remove('my-sidebar-closed');
-        btn.innerHTML = '◀'; // 箭頭朝左，暗示可以收合
+        btn.innerHTML = '◀'; 
       } else {
-        // 收合側邊欄
         body.classList.add('my-sidebar-closed');
-        btn.innerHTML = '▶'; // 箭頭朝右，暗示可以展開
+        btn.innerHTML = '▶'; 
       }
     }
 
-    // 頁面初次載入時，如果是手機螢幕寬度，預設先幫使用者把側邊欄收起來，讓畫面乾淨
     if (window.innerWidth <= 768) {
       document.body.classList.add('my-sidebar-closed');
       document.getElementById('my-toggle-btn').innerHTML = '▶';
     }
 
     /* ════════════════════════════════
-       Docsify 基本設定 (乾淨版)
+       Docsify 基本設定
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
@@ -384,13 +412,12 @@
       },
       plugins: [
         function(hook, vm) {
-          // 修正中文粗體
           hook.beforeEach(function(content) {
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 【變更】雙重保險機制：確保換頁一定會回到最頂部
           hook.doneEach(function() {
+            // 1. 置頂雙重保險
             setTimeout(() => {
               window.scrollTo(0, 0);
               document.body.scrollTop = 0;
@@ -399,12 +426,41 @@
               if (mainContent) mainContent.scrollTop = 0;
             }, 50);
 
-            // 為了防範頁面內有較慢載入的元素(如圖片/Tabs)，300毫秒後再校正一次
             setTimeout(() => {
               window.scrollTo(0, 0);
               document.body.scrollTop = 0;
               document.documentElement.scrollTop = 0;
             }, 300);
+
+            // 2. 【新增】自動產生浮動標籤按鈕 (抓取所有 h3 標題)
+            const h3s = document.querySelectorAll('.markdown-section h3');
+            if (h3s.length > 0) {
+              // 確保不會重複產生
+              const oldToc = document.getElementById('floating-toc');
+              if (oldToc) oldToc.remove();
+
+              // 建立容器
+              const tocContainer = document.createElement('div');
+              tocContainer.id = 'floating-toc';
+              tocContainer.className = 'floating-toc';
+
+              // 替每個 h3 建立一顆按鈕
+              h3s.forEach(h3 => {
+                const btn = document.createElement('button');
+                // 抓取標題文字，並過濾掉可能出現的隱藏錨點符號 #
+                btn.innerText = h3.innerText.replace(/#/g, '').trim();
+                
+                btn.onclick = () => {
+                  // 平滑滾動到對應的標題位置
+                  h3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                };
+                tocContainer.appendChild(btn);
+              });
+
+              // 插入到文章內容的最頂部
+              const markdownSection = document.querySelector('.markdown-section');
+              markdownSection.insertBefore(tocContainer, markdownSection.firstChild);
+            }
           });
         }
       ],
@@ -449,7 +505,7 @@
     }
 
     /* ════════════════════════════════
-       上一篇 / 下一篇 (加強置頂連動)
+       上一篇 / 下一篇
     ════════════════════════════════ */
     let _sidebarPaths = null; 
 
@@ -507,7 +563,6 @@
       }
     }
 
-    // 【變更】偵測到網址 hash 改變 (無論是按鈕還是點擊目錄) 時，強制重設捲動條
     window.addEventListener('hashchange', () => { 
       _sidebarPaths = null; 
       setTimeout(() => {
