@@ -225,24 +225,24 @@
       z-index: 998;
     }
 
-    /* 手動開關按鈕 */
+    /* 手動開關按鈕 (已縮小並上移) */
     .my-toggle-btn {
       position: fixed;
-      top: 20%;
+      top: 20%; /* 【變更】從 50% 移到 20% (偏上方) */
       transform: translateY(-50%);
-      left: var(--my-sidebar-width); /* 展開時，貼著側邊欄右緣 */
-      width: 25px;
-      height: 64px;
+      left: var(--my-sidebar-width); 
+      width: 25px;  /* 【變更】縮小寬度 */
+      height: 45px; /* 【變更】縮小高度 */
       background-color: var(--theme-color);
       color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 14px; /* 【變更】縮小箭頭圖標 */
       font-weight: bold;
       cursor: pointer;
       z-index: 1001;
-      border-radius: 0 8px 8px 0;
+      border-radius: 0 6px 6px 0;
       box-shadow: 3px 0 8px rgba(0,0,0,0.6);
       transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
       user-select: none;
@@ -377,7 +377,7 @@
         '/.*/_sidebar.md': '/_sidebar.md'
       },
       subMaxLevel: 2,
-      auto2top: true, // 保留此設定，但我們需要額外處理自訂容器捲動
+      auto2top: true,
       markdown: {
         gfm: true,
         breaks: true
@@ -389,15 +389,22 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
 
-          // 【修改點】換頁後強制置頂：增加延遲時間，並明確針對 .content 容器捲動
+          // 【變更】雙重保險機制：確保換頁一定會回到最頂部
           hook.doneEach(function() {
             setTimeout(() => {
-              window.scrollTo({ top: 0, behavior: 'instant' }); // 視窗回到最上方
+              window.scrollTo(0, 0);
+              document.body.scrollTop = 0;
+              document.documentElement.scrollTop = 0;
               const mainContent = document.querySelector('.content');
-              if (mainContent) {
-                mainContent.scrollTop = 0; // 因為你的 .content 是 absolute，必須針對它捲動
-              }
-            }, 250); // 從 50ms 改為 250ms，確保內容已渲染完成
+              if (mainContent) mainContent.scrollTop = 0;
+            }, 50);
+
+            // 為了防範頁面內有較慢載入的元素(如圖片/Tabs)，300毫秒後再校正一次
+            setTimeout(() => {
+              window.scrollTo(0, 0);
+              document.body.scrollTop = 0;
+              document.documentElement.scrollTop = 0;
+            }, 300);
           });
         }
       ],
@@ -442,7 +449,7 @@
     }
 
     /* ════════════════════════════════
-       上一篇 / 下一篇
+       上一篇 / 下一篇 (加強置頂連動)
     ════════════════════════════════ */
     let _sidebarPaths = null; 
 
@@ -500,17 +507,14 @@
       }
     }
 
-    window.addEventListener('hashchange', () => { _sidebarPaths = null; });
-  </script>
-
-  <!-- 【新增】全域監聽 hash 變化，確保無論點擊哪裡都會捲回頂端 -->
-  <script>
-    window.addEventListener('hashchange', () => {
+    // 【變更】偵測到網址 hash 改變 (無論是按鈕還是點擊目錄) 時，強制重設捲動條
+    window.addEventListener('hashchange', () => { 
+      _sidebarPaths = null; 
       setTimeout(() => {
         window.scrollTo(0, 0);
-        const mainContent = document.querySelector('.content');
-        if (mainContent) mainContent.scrollTop = 0;
-      }, 300); // 給予較充裕的時間讓 Docsify 完成 DOM 切換與渲染
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+      }, 50);
     });
   </script>
 
