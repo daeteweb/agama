@@ -1,4 +1,4 @@
-name: Generate Manifest JSON
+name: Generate Manifest and Sidebar
 
 on:
   push:
@@ -16,10 +16,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Run Manifest Generator
+    - name: Run Generator
       shell: pwsh
       run: |
-        # 修正語法：確保每個 @{} 之間有逗號隔開
         $volumeRanges = @(
             @{ name = "第 01 卷 (五陰相應)"; start = 1; end = 32 },
             @{ name = "第 02 卷 (五陰相應)"; start = 33; end = 58 },
@@ -74,9 +73,17 @@ jobs:
         )
 
         $manifest = @()
+        
+        # 建立 Sidebar 的頂部內容
+        $sidebarMd = "* [🏠 首頁](README.md)`n`n* **雜阿含經**`n"
 
         foreach ($vol in $volumeRanges) {
             $currentVolume = @{ volume_name = $vol.name; items = @() }
+            $hasItems = $false
+            
+            # Markdown 目錄階層 (縮排一層)
+            $volMd = "  * **$($vol.name)**`n"
+
             foreach ($i in $vol.start..$vol.end) {
                 $id = "sa" + $i.ToString("0000")
                 
@@ -87,7 +94,7 @@ jobs:
                 $filePath = "suttas/sa/$subDir/$id.md"
 
                 if (Test-Path $filePath) {
-                    # 讀取第一行並過濾標題符號
+                    $hasItems = $true
                     $content = Get-Content $filePath -Encoding utf8 -TotalCount 5
                     $firstLine = $content | Select-Object -First 1
                     $title = $firstLine.Replace('#', '').Trim()
@@ -95,20 +102,32 @@ jobs:
                     $currentVolume.items += @{
                         id = $id
                         title = $title
-                        path = "sa/$subDir/$id.md"
+                        path = $filePath
                     }
+                    
+                    # Markdown 經文連結 (縮排兩層)
+                    $volMd += "    * [$title]($filePath)`n"
                 }
             }
-            if ($currentVolume.items.Count -gt 0) { $manifest += $currentVolume }
+            if ($hasItems) { 
+                $manifest += $currentVolume 
+                $sidebarMd += $volMd
+            }
         }
+        
+        # 加上中阿含、長阿含的佔位符
+        $sidebarMd += "`n* **中阿含經**`n  * (整理中...)`n`n* **長阿含經**`n  * (整理中...)`n"
 
-        # 輸出並強制使用 UTF8 編碼（不含 BOM）
+        # 輸出 JSON
         $json = $manifest | ConvertTo-Json -Depth 10
         [System.IO.File]::WriteAllText("$pwd/manifest.json", $json, [System.Text.Encoding]::UTF8)
+        
+        # 輸出 Sidebar Markdown
+        [System.IO.File]::WriteAllText("$pwd/_sidebar.md", $sidebarMd, [System.Text.Encoding]::UTF8)
 
     - name: Commit and Push changes
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add manifest.json
-        git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update manifest.json" && git push)
+        git add manifest.json _sidebar.md
+        git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update manifest.json and sidebar" && git push)

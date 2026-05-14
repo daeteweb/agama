@@ -21,119 +21,40 @@
       --my-sidebar-width: 300px;
     }
 
-    /* ══════════════════════════════════════
-       消滅所有深藍色
-    ══════════════════════════════════════ */
-    body,
-    .markdown-section,
-    .markdown-section p,
-    .markdown-section li,
-    .markdown-section td,
-    .markdown-section th,
-    .markdown-section blockquote,
-    .markdown-section blockquote p,
-    .content,
-    p, li, td, th, span, label {
+    body, .markdown-section, .markdown-section p, .markdown-section li,
+    .markdown-section td, .markdown-section th, .markdown-section blockquote,
+    .markdown-section blockquote p, .content, p, li, td, th, span, label {
       color: var(--base-color) !important;
     }
+    body { background-color: var(--background); }
+    h1, h2, h3, h4, h5, h6, .markdown-section h1, .markdown-section h2,
+    .markdown-section h3, .markdown-section h4 { color: #ffffff !important; }
+    strong, .markdown-section strong { color: #ffffff !important; }
+    a, .markdown-section a { color: #c8a84b !important; }
+    a:hover, .markdown-section a:hover { color: #d4af37 !important; }
+    .markdown-section code, .markdown-section pre code { color: #e0c97a !important; background: #111 !important; }
+    .markdown-section pre { background: #111 !important; }
+    
+    .search input { background: #111 !important; color: var(--base-color) !important; border: 1px solid #333 !important; }
+    .search input::placeholder { color: #555 !important; }
+    .search .results-panel { background: #0d0d0d !important; border: 1px solid #333 !important; }
+    .search .results-panel a { border-bottom: 1px solid #222 !important; }
+    .search .results-panel .matching-post h2 { color: #ffffff !important; }
+    .search .results-panel .matching-post p { color: var(--base-color) !important; }
 
-    body {
-      background-color: var(--background);
-    }
+    .docsify-tabs__tab { background: #111 !important; color: #777 !important; border: 1px solid #222 !important; }
+    .docsify-tabs__tab--active { background: #000 !important; color: #d4af37 !important; border-bottom: 2px solid #d4af37 !important; }
+    .docsify-tabs__content { background: #0a0a0a !important; border: 1px solid #222 !important; color: var(--base-color) !important; }
 
-    h1, h2, h3, h4, h5, h6,
-    .markdown-section h1,
-    .markdown-section h2,
-    .markdown-section h3,
-    .markdown-section h4 {
-      color: #ffffff !important;
-    }
-
-    strong, .markdown-section strong {
-      color: #ffffff !important;
-    }
-
-    a, .markdown-section a {
-      color: #c8a84b !important;
-    }
-    a:hover, .markdown-section a:hover {
-      color: #d4af37 !important;
-    }
-
-    .markdown-section code,
-    .markdown-section pre code {
-      color: #e0c97a !important;
-      background: #111 !important;
-    }
-    .markdown-section pre {
-      background: #111 !important;
-    }
-
-    /* ── 搜尋框 ── */
-    .search input {
-      background: #111 !important;
-      color: var(--base-color) !important;
-      border: 1px solid #333 !important;
-    }
-    .search input::placeholder {
-      color: #555 !important;
-    }
-    .search .results-panel {
-      background: #0d0d0d !important;
-      border: 1px solid #333 !important;
-    }
-    .search .results-panel a {
-      border-bottom: 1px solid #222 !important;
-    }
-    .search .results-panel .matching-post h2 {
-      color: #ffffff !important;
-    }
-    .search .results-panel .matching-post p {
-      color: var(--base-color) !important;
-    }
-
-    /* ── Tabs 插件 ── */
-    .docsify-tabs__tab {
-      background: #111 !important;
-      color: #777 !important;
-      border: 1px solid #222 !important;
-    }
-    .docsify-tabs__tab--active {
-      background: #000 !important;
-      color: #d4af37 !important;
-      border-bottom: 2px solid #d4af37 !important;
-    }
-    .docsify-tabs__content {
-      background: #0a0a0a !important;
-      border: 1px solid #222 !important;
-      color: var(--base-color) !important;
-    }
-
-    /* ── 表格 ── */
-    .markdown-section table tr {
-      background: #0d0d0d !important;
-      border-top: 1px solid #333 !important;
-    }
-    .markdown-section table tr:nth-child(2n) {
-      background: #111 !important;
-    }
-    .markdown-section table th,
-    .markdown-section table td {
-      border: 1px solid #333 !important;
-    }
-
-    /* ── blockquote ── */
-    .markdown-section blockquote {
-      border-left: 4px solid #d4af37 !important;
-      background: #0d0d0d !important;
-    }
+    .markdown-section table tr { background: #0d0d0d !important; border-top: 1px solid #333 !important; }
+    .markdown-section table tr:nth-child(2n) { background: #111 !important; }
+    .markdown-section table th, .markdown-section table td { border: 1px solid #333 !important; }
+    .markdown-section blockquote { border-left: 4px solid #d4af37 !important; background: #0d0d0d !important; }
 
     /* ══════════════════════════════════════
        徹底廢除 Docsify 預設側邊欄行為
     ══════════════════════════════════════ */
-    .sidebar-toggle {
-      display: none !important; 
-    }
+    .sidebar-toggle { display: none !important; }
 
     .sidebar {
       position: fixed !important;
@@ -147,24 +68,10 @@
       transform: translateX(0) !important;
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-
-    body.my-sidebar-closed .sidebar {
-      transform: translateX(calc(-1 * var(--my-sidebar-width))) !important;
-    }
-
-    .sidebar-nav li a,
-    .sidebar-nav li span,
-    .sidebar ul li a {
-      color: var(--base-color) !important;
-    }
-    .sidebar-nav li.active > a,
-    .sidebar-nav li > a.active {
-      color: #d4af37 !important;
-      border-right: 2px solid #d4af37;
-    }
-    .app-name, .app-name a {
-      color: #d4af37 !important;
-    }
+    body.my-sidebar-closed .sidebar { transform: translateX(calc(-1 * var(--my-sidebar-width))) !important; }
+    .sidebar-nav li a, .sidebar-nav li span, .sidebar ul li a { color: var(--base-color) !important; }
+    .sidebar-nav li.active > a, .sidebar-nav li > a.active { color: #d4af37 !important; border-right: 2px solid #d4af37; }
+    .app-name, .app-name a { color: #d4af37 !important; }
 
     .content {
       position: absolute !important;
@@ -172,10 +79,7 @@
       right: 0 !important;
       transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
-    
-    .bottom-toolbar {
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
+    .bottom-toolbar { transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
 
     @media screen and (min-width: 769px) {
       body .content { left: var(--my-sidebar-width) !important; }
@@ -183,184 +87,81 @@
       body .bottom-toolbar { left: var(--my-sidebar-width) !important; }
       body.my-sidebar-closed .bottom-toolbar { left: 0 !important; }
     }
-
     @media screen and (max-width: 768px) {
-      body .content { 
-        left: 0 !important; 
-        width: 100% !important; 
-        padding-left: 20px !important; 
-      }
-      body .bottom-toolbar { 
-        left: 0 !important; 
-        padding: 0 10px !important; 
-        gap: 4px !important; 
-      }
-      .bottom-toolbar button {
-        padding: 6px 8px !important;
-        font-size: 12px !important;
-      }
+      body .content { left: 0 !important; width: 100% !important; padding-left: 20px !important; }
+      body .bottom-toolbar { left: 0 !important; padding: 0 10px !important; gap: 4px !important; }
+      .bottom-toolbar button { padding: 6px 8px !important; font-size: 12px !important; }
     }
 
     /* ══════════════════════════════════════
        自訂左側邊緣跳色直線與開關按鈕
     ══════════════════════════════════════ */
     .edge-line {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 4px;
-      background-color: var(--theme-color);
-      z-index: 998;
+      position: fixed; top: 0; bottom: 0; left: 0; width: 4px;
+      background-color: var(--theme-color); z-index: 998;
     }
-
     .my-toggle-btn {
-      position: fixed;
-      top: 20%;
-      transform: translateY(-50%);
-      left: var(--my-sidebar-width); 
-      width: 25px;
-      height: 45px;
-      background-color: var(--theme-color);
-      color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      z-index: 1001;
-      border-radius: 0 6px 6px 0;
+      position: fixed; top: 20%; transform: translateY(-50%);
+      left: var(--my-sidebar-width); width: 25px; height: 45px;
+      background-color: var(--theme-color); color: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: bold; cursor: pointer;
+      z-index: 1001; border-radius: 0 6px 6px 0;
       box-shadow: 3px 0 8px rgba(0,0,0,0.6);
       transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
       user-select: none;
     }
-
-    .my-toggle-btn:active {
-      background-color: #e6c552;
-    }
-
-    body.my-sidebar-closed .my-toggle-btn {
-      left: 4px;
-    }
+    .my-toggle-btn:active { background-color: #e6c552; }
+    body.my-sidebar-closed .my-toggle-btn { left: 4px; }
 
     /* ══════════════════════════════════════
-       【新增】浮動標籤導航列 (段落跳轉)
+       浮動標籤導航列 (段落跳轉)
     ══════════════════════════════════════ */
     .floating-toc {
-      position: sticky;
-      top: 0;
-      z-index: 150;
-      display: flex;
-      flex-wrap: wrap; 
-      gap: 8px;
-      padding: 12px 0;
-      /* 半透明黑色背景 + 毛玻璃效果，讓滑過去的字不會干擾閱讀 */
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #333;
-      margin-bottom: 24px;
-      /* 抵銷 docsify 預設的 padding 讓它貼齊頂部 */
-      margin-top: -15px; 
+      position: sticky; top: 0; z-index: 150;
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0;
+      background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(8px);
+      border-bottom: 1px solid #333; margin-bottom: 24px; margin-top: -15px; 
     }
-
     .floating-toc button {
-      background: #1a1a1a;
-      color: var(--theme-color);
-      border: 1px solid #3a3a3a;
-      padding: 6px 14px;
-      border-radius: 20px; /* 圓角膠囊造型 */
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
+      background: #1a1a1a; color: var(--theme-color); border: 1px solid #3a3a3a;
+      padding: 6px 14px; border-radius: 20px; font-size: 14px;
+      cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
     }
-
-    .floating-toc button:hover {
-      background: var(--theme-color);
-      color: #000;
-    }
-
-    /* 點擊跳轉後，為了不讓標題被浮動列蓋住，給標題留出上方空間 */
-    .markdown-section h1,
-    .markdown-section h2,
-    .markdown-section h3,
-    .markdown-section h4 {
+    .floating-toc button:hover { background: var(--theme-color); color: #000; }
+    .markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4 {
       scroll-margin-top: 70px !important;
     }
 
     /* ══════════════════════════════════════
        底部工具列排版細節
     ══════════════════════════════════════ */
-    .markdown-section {
-      font-size: var(--base-font-size) !important;
-      padding-bottom: calc(var(--toolbar-height) + 24px) !important;
-    }
-
+    .markdown-section { font-size: var(--base-font-size) !important; padding-bottom: calc(var(--toolbar-height) + 24px) !important; }
     .bottom-toolbar {
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      height: var(--toolbar-height);
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      background: rgba(8, 8, 8, 0.97);
-      border-top: 1px solid #2a2a2a;
-      backdrop-filter: blur(6px);
-      box-sizing: border-box;
-      gap: 8px;
+      position: fixed; bottom: 0; right: 0; height: var(--toolbar-height); z-index: 200;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+      background: rgba(8, 8, 8, 0.97); border-top: 1px solid #2a2a2a; backdrop-filter: blur(6px);
+      box-sizing: border-box; gap: 8px;
     }
-
-    .toolbar-nav,
-    .toolbar-font {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      flex-shrink: 0;
-    }
-
+    .toolbar-nav, .toolbar-font { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
     .bottom-toolbar button {
-      background: #1a1a1a;
-      color: #d4af37;
-      border: 1px solid #3a3a3a;
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 13px;
-      transition: background 0.15s, color 0.15s;
-      white-space: nowrap;
-      flex-shrink: 0;
+      background: #1a1a1a; color: #d4af37; border: 1px solid #3a3a3a;
+      padding: 6px 12px; cursor: pointer; border-radius: 4px; font-size: 13px;
+      transition: background 0.15s, color 0.15s; white-space: nowrap; flex-shrink: 0;
     }
-    .bottom-toolbar button:hover {
-      background: #d4af37;
-      color: #000;
-      border-color: #d4af37;
-    }
+    .bottom-toolbar button:hover { background: #d4af37; color: #000; border-color: #d4af37; }
 
-    .sidebar-nav li:not(.collapse) > .section-link:after {
-      content: '▼';
-      font-size: 10px;
-      margin-left: 5px;
-      color: var(--theme-color);
-    }
-    .sidebar-nav li.collapse > .section-link:after {
-      content: '▶';
-      color: var(--base-color);
-    }
+    .sidebar-nav li:not(.collapse) > .section-link:after { content: '▼'; font-size: 10px; margin-left: 5px; color: var(--theme-color); }
+    .sidebar-nav li.collapse > .section-link:after { content: '▶'; color: var(--base-color); }
   </style>
 </head>
 <body>
 
-  <!-- 自訂側邊欄邊緣線與開關 -->
   <div class="edge-line"></div>
   <div id="my-toggle-btn" class="my-toggle-btn" onclick="toggleMySidebar()">◀</div>
 
   <div id="app">載入中...</div>
 
-  <!-- 底部工具列 -->
   <div class="bottom-toolbar">
     <div class="toolbar-nav">
       <button onclick="goPrevPage()" title="上一篇">◀ 上一篇</button>
@@ -374,13 +175,9 @@
   </div>
 
   <script>
-    /* ════════════════════════════════
-       純手動側邊欄控制邏輯
-    ════════════════════════════════ */
     function toggleMySidebar() {
       const body = document.body;
       const btn = document.getElementById('my-toggle-btn');
-      
       if (body.classList.contains('my-sidebar-closed')) {
         body.classList.remove('my-sidebar-closed');
         btn.innerHTML = '◀'; 
@@ -395,29 +192,19 @@
       document.getElementById('my-toggle-btn').innerHTML = '▶';
     }
 
-    /* ════════════════════════════════
-       Docsify 基本設定
-    ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
       loadSidebar: true,
-      alias: {
-        '/.*/_sidebar.md': '/_sidebar.md'
-      },
+      alias: { '/.*/_sidebar.md': '/_sidebar.md' },
       subMaxLevel: 2,
       auto2top: true,
-      markdown: {
-        gfm: true,
-        breaks: true
-      },
+      markdown: { gfm: true, breaks: true },
       plugins: [
         function(hook, vm) {
           hook.beforeEach(function(content) {
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
-
           hook.doneEach(function() {
-            // 1. 置頂雙重保險
             setTimeout(() => {
               window.scrollTo(0, 0);
               document.body.scrollTop = 0;
@@ -425,111 +212,78 @@
               const mainContent = document.querySelector('.content');
               if (mainContent) mainContent.scrollTop = 0;
             }, 50);
-
             setTimeout(() => {
               window.scrollTo(0, 0);
               document.body.scrollTop = 0;
               document.documentElement.scrollTop = 0;
             }, 300);
 
-            // 2. 【新增】自動產生浮動標籤按鈕 (抓取所有 h3 標題)
+            // 自動產生浮動標籤按鈕 (抓取所有 h3)
             const h3s = document.querySelectorAll('.markdown-section h3');
             if (h3s.length > 0) {
-              // 確保不會重複產生
               const oldToc = document.getElementById('floating-toc');
               if (oldToc) oldToc.remove();
 
-              // 建立容器
               const tocContainer = document.createElement('div');
               tocContainer.id = 'floating-toc';
               tocContainer.className = 'floating-toc';
 
-              // 替每個 h3 建立一顆按鈕
               h3s.forEach(h3 => {
                 const btn = document.createElement('button');
-                // 抓取標題文字，並過濾掉可能出現的隱藏錨點符號 #
                 btn.innerText = h3.innerText.replace(/#/g, '').trim();
-                
-                btn.onclick = () => {
-                  // 平滑滾動到對應的標題位置
-                  h3.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                };
+                btn.onclick = () => { h3.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
                 tocContainer.appendChild(btn);
               });
 
-              // 插入到文章內容的最頂部
               const markdownSection = document.querySelector('.markdown-section');
               markdownSection.insertBefore(tocContainer, markdownSection.firstChild);
             }
           });
         }
       ],
-      search: {
-        maxAge: 86400000,
-        paths: 'auto',
-        placeholder: '搜尋經文...',
-        noData: '找不到結果',
-        depth: 6
-      },
-      tabs: {
-        persist: true,
-        sync: false,
-        theme: 'classic',
-        tabComments: true,
-        tabHeadings: true
-      }
+      search: { maxAge: 86400000, paths: 'auto', placeholder: '搜尋經文...', noData: '找不到結果', depth: 6 },
+      tabs: { persist: true, sync: false, theme: 'classic', tabComments: true, tabHeadings: true }
     };
-  </script>
 
-  <script>
-    /* ════════════════════════════════
-       字體大小控制
-    ════════════════════════════════ */
     let currentSize = parseInt(localStorage.getItem('agama-font-size')) || 18;
     applyFontSize(currentSize);
-
     function changeFontSize(delta) {
       currentSize = Math.min(40, Math.max(12, currentSize + delta));
       applyFontSize(currentSize);
       localStorage.setItem('agama-font-size', currentSize);
     }
-
     function resetFontSize() {
       currentSize = 18;
       applyFontSize(currentSize);
       localStorage.removeItem('agama-font-size');
     }
-
     function applyFontSize(size) {
       document.documentElement.style.setProperty('--base-font-size', size + 'px');
     }
 
-    /* ════════════════════════════════
-       上一篇 / 下一篇
-    ════════════════════════════════ */
     let _sidebarPaths = null; 
-
     async function fetchSidebarPaths() {
       if (_sidebarPaths) return _sidebarPaths;
       try {
-        const res = await fetch('_sidebar.md');
+        const res = await fetch('manifest.json');
         if (!res.ok) throw new Error('fetch failed');
-        const text = await res.text();
+        const data = await res.json();
 
-        const regex = /\[[^\]]+\]\((?!https?:\/\/)([^)#]+\.md)\)/g;
-        const paths =[];
-        let m;
-        while ((m = regex.exec(text)) !== null) {
-          const clean = m[1].replace(/^\.?\//, '').replace(/\.md$/, '');
-          if (clean.toLowerCase() !== 'readme') {
-            paths.push(clean);
+        const paths = [];
+        data.forEach(vol => {
+          if (vol.items) {
+            vol.items.forEach(item => {
+              // 精準解析 JSON 裡的路徑
+              const clean = item.path.replace(/^\.?\//, '').replace(/\.md$/, '');
+              paths.push(clean);
+            });
           }
-        }
+        });
         _sidebarPaths = paths;
         return paths;
       } catch (e) {
-        console.warn('無法讀取 _sidebar.md', e);
-        return[];
+        console.warn('無法讀取 manifest.json', e);
+        return [];
       }
     }
 
