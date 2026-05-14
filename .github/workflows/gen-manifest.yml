@@ -8,6 +8,11 @@ on:
       - 'suttas/sa/**'
   workflow_dispatch:
 
+# --- 加入這段來消除警告 ---
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+# -----------------------
+
 jobs:
   build:
     runs-on: windows-latest
