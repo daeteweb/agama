@@ -245,7 +245,7 @@
     }
 
     /* ══════════════════════════════════════
-       【新增】浮動標籤導航列 (段落跳轉)
+       浮動標籤導航列 (段落跳轉)
     ══════════════════════════════════════ */
     .floating-toc {
       position: sticky;
@@ -255,12 +255,10 @@
       flex-wrap: wrap; 
       gap: 8px;
       padding: 12px 0;
-      /* 半透明黑色背景 + 毛玻璃效果，讓滑過去的字不會干擾閱讀 */
       background: rgba(0, 0, 0, 0.95);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid #333;
       margin-bottom: 24px;
-      /* 抵銷 docsify 預設的 padding 讓它貼齊頂部 */
       margin-top: -15px; 
     }
 
@@ -269,7 +267,7 @@
       color: var(--theme-color);
       border: 1px solid #3a3a3a;
       padding: 6px 14px;
-      border-radius: 20px; /* 圓角膠囊造型 */
+      border-radius: 20px; 
       font-size: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -281,7 +279,6 @@
       color: #000;
     }
 
-    /* 點擊跳轉後，為了不讓標題被浮動列蓋住，給標題留出上方空間 */
     .markdown-section h1,
     .markdown-section h2,
     .markdown-section h3,
@@ -351,6 +348,89 @@
       color: var(--base-color);
     }
   </style>
+
+  <script>
+    /* ════════════════════════════════════════════════════════
+       【核心魔法】攔截 Docsify 請求，自動將 JSON 轉為 Markdown 目錄
+    ════════════════════════════════════════════════════════ */
+    (function() {
+      // 1. 攔截 Fetch API
+      if (window.fetch) {
+        const origFetch = window.fetch;
+        window.fetch = async function(...args) {
+          const url = typeof args[0] === 'string' ? args[0] : (args[0] && args[0].url);
+          // 當 Docsify 討要 _sidebar.md 時
+          if (url && url.endsWith('_sidebar.md')) {
+            try {
+              const res = await origFetch('manifest.json');
+              const data = await res.json();
+              
+              // 在記憶體中動態組成 Docsify 習慣的 Markdown 格式
+              let md = '* [🏠 首頁](README.md)\n\n';
+              data.forEach(vol => {
+                md += `* **${vol.volume_name}**\n`;
+                if (vol.items) {
+                  vol.items.forEach(item => {
+                    md += `  * [${item.title}](${item.path})\n`;
+                  });
+                }
+              });
+
+              // 將虛擬的 Markdown 檔案回傳給 Docsify
+              return new Response(md, {
+                status: 200,
+                headers: { 'Content-Type': 'text/markdown; charset=utf-8' }
+              });
+            } catch (e) {
+              console.error('動態轉換 manifest.json 失敗:', e);
+            }
+          }
+          return origFetch.apply(this, args);
+        };
+      }
+
+      // 2. 攔截 XMLHttpRequest (Docsify 在某些瀏覽器/版本預設使用 XHR)
+      const origOpen = window.XMLHttpRequest.prototype.open;
+      const origSend = window.XMLHttpRequest.prototype.send;
+      
+      window.XMLHttpRequest.prototype.open = function(method, url) {
+        this._requestUrl = url;
+        origOpen.apply(this, arguments);
+      };
+      
+      window.XMLHttpRequest.prototype.send = function() {
+        if (this._requestUrl && this._requestUrl.endsWith('_sidebar.md')) {
+          const xhr = this;
+          window.fetch('manifest.json')
+            .then(res => res.json())
+            .then(data => {
+              let md = '* [🏠 首頁](README.md)\n\n';
+              data.forEach(vol => {
+                md += `* **${vol.volume_name}**\n`;
+                if (vol.items) {
+                  vol.items.forEach(item => {
+                    md += `  * [${item.title}](${item.path})\n`;
+                  });
+                }
+              });
+              
+              // 模擬 XHR 成功回應
+              Object.defineProperty(xhr, 'readyState', { value: 4, configurable: true });
+              Object.defineProperty(xhr, 'status', { value: 200, configurable: true });
+              Object.defineProperty(xhr, 'responseText', { value: md, configurable: true });
+              
+              if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange();
+              if (typeof xhr.onload === 'function') xhr.onload();
+            })
+            .catch(err => {
+              origSend.apply(this, arguments);
+            });
+        } else {
+          origSend.apply(this, arguments);
+        }
+      };
+    })();
+  </script>
 </head>
 <body>
 
@@ -400,7 +480,7 @@
     ════════════════════════════════ */
     window.$docsify = {
       name: '《阿含經》白話計畫',
-      loadSidebar: true,
+      loadSidebar: true, // 仍然設為 true，因為我們會攔截並給予轉換後的 manifest
       alias: {
         '/.*/_sidebar.md': '/_sidebar.md'
       },
@@ -417,7 +497,7 @@
           });
 
           hook.doneEach(function() {
-            // 1. 置頂雙重保險
+            // 置頂雙重保險
             setTimeout(() => {
               window.scrollTo(0, 0);
               document.body.scrollTop = 0;
@@ -432,32 +512,26 @@
               document.documentElement.scrollTop = 0;
             }, 300);
 
-            // 2. 【新增】自動產生浮動標籤按鈕 (抓取所有 h3 標題)
+            // 自動產生浮動標籤按鈕 (抓取所有 h3 標題)
             const h3s = document.querySelectorAll('.markdown-section h3');
             if (h3s.length > 0) {
-              // 確保不會重複產生
               const oldToc = document.getElementById('floating-toc');
               if (oldToc) oldToc.remove();
 
-              // 建立容器
               const tocContainer = document.createElement('div');
               tocContainer.id = 'floating-toc';
               tocContainer.className = 'floating-toc';
 
-              // 替每個 h3 建立一顆按鈕
               h3s.forEach(h3 => {
                 const btn = document.createElement('button');
-                // 抓取標題文字，並過濾掉可能出現的隱藏錨點符號 #
                 btn.innerText = h3.innerText.replace(/#/g, '').trim();
                 
                 btn.onclick = () => {
-                  // 平滑滾動到對應的標題位置
                   h3.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 };
                 tocContainer.appendChild(btn);
               });
 
-              // 插入到文章內容的最頂部
               const markdownSection = document.querySelector('.markdown-section');
               markdownSection.insertBefore(tocContainer, markdownSection.firstChild);
             }
@@ -505,31 +579,34 @@
     }
 
     /* ════════════════════════════════
-       上一篇 / 下一篇
+       上一篇 / 下一篇 (改為直接解析 manifest.json)
     ════════════════════════════════ */
     let _sidebarPaths = null; 
 
     async function fetchSidebarPaths() {
       if (_sidebarPaths) return _sidebarPaths;
       try {
-        const res = await fetch('_sidebar.md');
+        // 直接讀取 manifest.json (速度比解析 markdown 快很多)
+        const res = await fetch('manifest.json');
         if (!res.ok) throw new Error('fetch failed');
-        const text = await res.text();
+        const data = await res.json();
 
-        const regex = /\[[^\]]+\]\((?!https?:\/\/)([^)#]+\.md)\)/g;
-        const paths =[];
-        let m;
-        while ((m = regex.exec(text)) !== null) {
-          const clean = m[1].replace(/^\.?\//, '').replace(/\.md$/, '');
-          if (clean.toLowerCase() !== 'readme') {
-            paths.push(clean);
+        const paths = [];
+        // 將階層化 JSON 攤平成線性陣列，排除首頁
+        data.forEach(vol => {
+          if (vol.items) {
+            vol.items.forEach(item => {
+              // 把 .md 副檔名去掉，轉成路由 hash 格式
+              const clean = item.path.replace(/^\.?\//, '').replace(/\.md$/, '');
+              paths.push(clean);
+            });
           }
-        }
+        });
         _sidebarPaths = paths;
         return paths;
       } catch (e) {
-        console.warn('無法讀取 _sidebar.md', e);
-        return[];
+        console.warn('無法讀取 manifest.json', e);
+        return [];
       }
     }
 
