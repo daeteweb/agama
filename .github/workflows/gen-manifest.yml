@@ -8,10 +8,8 @@ on:
       - 'suttas/sa/**'
   workflow_dispatch:
 
-# --- 加入這段來消除警告 ---
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-# -----------------------
 
 jobs:
   build:
@@ -19,7 +17,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Run Generator
       shell: pwsh
@@ -78,15 +76,11 @@ jobs:
         )
 
         $manifest = @()
-        
-        # 建立 Sidebar 的頂部內容
         $sidebarMd = "* [🏠 首頁](README.md)`n`n* **雜阿含經**`n"
 
         foreach ($vol in $volumeRanges) {
             $currentVolume = @{ volume_name = $vol.name; items = @() }
             $hasItems = $false
-            
-            # Markdown 目錄階層 (縮排一層)
             $volMd = "  * **$($vol.name)**`n"
 
             foreach ($i in $vol.start..$vol.end) {
@@ -100,9 +94,18 @@ jobs:
 
                 if (Test-Path $filePath) {
                     $hasItems = $true
+                    
+                    # 預設標題 (萬一檔案完全空白時會用到)
+                    $title = "雜阿含經 第 $i 經 <待修訂>"
+                    
+                    # 安全讀取檔案內容防呆
                     $content = Get-Content $filePath -Encoding utf8 -TotalCount 5
-                    $firstLine = $content | Select-Object -First 1
-                    $title = $firstLine.Replace('#', '').Trim()
+                    if ($null -ne $content) {
+                        $firstLine = $content | Select-Object -First 1
+                        if ($null -ne $firstLine -and ![string]::IsNullOrWhiteSpace($firstLine)) {
+                            $title = $firstLine.Replace('#', '').Trim()
+                        }
+                    }
                     
                     $currentVolume.items += @{
                         id = $id
@@ -110,7 +113,6 @@ jobs:
                         path = $filePath
                     }
                     
-                    # Markdown 經文連結 (縮排兩層)
                     $volMd += "    * [$title]($filePath)`n"
                 }
             }
@@ -120,14 +122,10 @@ jobs:
             }
         }
         
-        # 加上中阿含、長阿含的佔位符
         $sidebarMd += "`n* **中阿含經**`n  * (整理中...)`n`n* **長阿含經**`n  * (整理中...)`n"
 
-        # 輸出 JSON
         $json = $manifest | ConvertTo-Json -Depth 10
         [System.IO.File]::WriteAllText("$pwd/manifest.json", $json, [System.Text.Encoding]::UTF8)
-        
-        # 輸出 Sidebar Markdown
         [System.IO.File]::WriteAllText("$pwd/_sidebar.md", $sidebarMd, [System.Text.Encoding]::UTF8)
 
     - name: Commit and Push changes
