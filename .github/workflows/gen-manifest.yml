@@ -1,0 +1,111 @@
+name: Generate Manifest JSON
+
+on:
+  push:
+    branches:
+      - main  # 如果您的主分支叫 master，請改為 master
+    paths:
+      - 'suttas/sa/**' # 只有當 sa 資料夾內的檔案變動時才觸發
+
+jobs:
+  build:
+    runs-on: windows-latest # 使用 Windows 環境以相容 PowerShell
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run Manifest Generator
+      shell: pwsh
+      run: |
+        # 定義 50 卷的範圍 (此處僅為邏輯示範，請依實際情況補全)
+        $volumeRanges = @(
+            @{ name = "第 01 卷 (五陰相應)"; start = 1; end = 32 },
+            @{ name = "第 02 卷 (五陰相應)"; start = 33; end = 58 },
+            @{ name = "第 03 卷 (五陰相應)"; start = 59; end = 87 },
+            @{ name = "第 04 卷 (五陰相應)"; start = 88; end = 102 }
+			@{ name = "第 05 卷 (五陰相應)"; start = 103; end = 110 },
+            @{ name = "第 06 卷 (羅陀相應、見相應)"; start = 111; end = 138 },
+            @{ name = "第 07 卷 (斷知相應、六入處相應)"; start = 139; end = 187 },
+            @{ name = "第 08 卷 (六入處相應)"; start = 188; end = 229 }
+			@{ name = "第 09 卷 (六入處相應)"; start = 230; end = 255 },
+            @{ name = "第 10 卷 (六入處相應)"; start = 256; end = 272 },
+            @{ name = "第 11 卷 (六入處相應（包含著名的第一義空經）)"; start = 273; end = 282 },
+            @{ name = "第 12 卷 (因緣相應（緣起法）)"; start = 283; end = 303 }
+			@{ name = "第 13 卷 (因緣相應)"; start = 304; end = 342 },
+            @{ name = "第 14 卷 (因緣相應（包含大初相應）)"; start = 343; end = 364 },
+            @{ name = "第 15 卷 (諦相應（四聖諦）)"; start = 365; end = 406 },
+            @{ name = "第 16 卷 (界相應、受相應)"; start = 407; end = 454 }
+			@{ name = "第 17 卷 (受相應、念處相應)"; start = 455; end = 489 },
+            @{ name = "第 18 卷 (正勤相應、神足相應、根相應)"; start = 490; end = 503 },
+            @{ name = "第 19 卷 (根相應、力相應)"; start = 504; end = 536 },
+            @{ name = "第 20 卷 (覺支相應（七覺支）)"; start = 537; end = 558 }
+			@{ name = "第 21 卷 (聖道分相應（八正道）)"; start = 559; end = 575 },
+            @{ name = "第 22 卷 (安那般那念相應（呼吸法門）、學相應)"; start = 576; end = 603 },
+            @{ name = "第 23 卷 (阿育王傳（誤入，無阿含經文）)"; start = 604; end = 604 },
+            @{ name = "第 24 卷 (念處相應（部分錯置至此）)"; start = 605; end = 639 }
+			@{ name = "第 25 卷 (神足相應（僅存兩經）)"; start = 640; end = 641 },
+            @{ name = "第 26 卷 (不壞淨相應（四不壞淨）)"; start = 642; end = 711 },
+            @{ name = "第 27 卷 (諸天相應（天子問法）)"; start = 712; end = 747 },
+            @{ name = "第 28 卷 (諸天相應)"; start = 748; end = 796 }
+			@{ name = "第 29 卷 (夜叉相應、林相應)"; start = 797; end = 829 },
+            @{ name = "第 30 卷 (婆羅門相應)"; start = 830; end = 860 },
+            @{ name = "第 31 卷 (梵天相應、比丘相應)"; start = 861; end = 904 },
+            @{ name = "第 32 卷 (比丘尼相應、摩訶男相應)"; start = 905; end = 918 }
+			@{ name = "第 33 卷 (聚落主相應、馬宿相應)"; start = 919; end = 939 },
+            @{ name = "第 34 卷 (釋氏相應、質多羅相應)"; start = 940; end = 969 },
+            @{ name = "第 35 卷 (釋提桓因相應（帝釋天）)"; start = 970; end = 992 },
+            @{ name = "第 36 卷 (阿難相應、迦葉相應)"; start = 993; end = 1022 }
+			@{ name = "第 37 卷 (舍利弗相應、目揵連相應)"; start = 1023; end = 1061 },
+            @{ name = "第 38 卷 (阿那律相應、念相應)"; start = 1062; end = 1080 },
+            @{ name = "第 39 卷 (囉𠷐那相應、不淨觀相應)"; start = 1081; end = 1103 },
+            @{ name = "第 40 卷 (囉𠷐那相應)"; start = 1104; end = 1120 }
+			@{ name = "第 41 卷 (譬喻相應)"; start = 1121; end = 1144 },
+            @{ name = "第 42 卷 (弟子所說誦)"; start = 1145; end = 1163 },
+            @{ name = "第 43 卷 (弟子所說誦)"; start = 1164; end = 1177 }
+			@{ name = "第 44 卷 (如來所說誦)"; start = 1178; end = 1197 },
+            @{ name = "第 45 卷 (如來所說誦)"; start = 1198; end = 1221 },
+            @{ name = "第 46 卷 (孤獨相應（給孤獨長者等）)"; start = 1222; end = 1240 },
+            @{ name = "第 47 卷 (病相應（探病、臨終說法）)"; start = 1241; end = 1266 }
+			@{ name = "第 48 卷 (業報相應、五恐怖怨相應)"; start = 1267; end = 1293 },
+            @{ name = "第 49 卷 (雜相應、歌詠相應)"; start = 1294; end = 1324 },
+            @{ name = "第 50 卷 (結使相應、道品相應（總結）)"; start = 1325; end = 1362 },
+			
+        )
+
+        $manifest = @()
+
+        foreach ($vol in $volumeRanges) {
+            $currentVolume = @{ volume_name = $vol.name; items = @() }
+            foreach ($i in $vol.start..$vol.end) {
+                $id = "sa" + $i.ToString("0000")
+                
+                # 自動判斷物理資料夾 v01, v02, v03
+                if ($i -le 500) { $subDir = "v01" }
+                elseif ($i -le 1000) { $subDir = "v02" }
+                else { $subDir = "v03" }
+
+                $filePath = "suttas/sa/$subDir/$id.md"
+
+                if (Test-Path $filePath) {
+                    $firstLine = Get-Content $filePath -TotalCount 1
+                    $title = $firstLine.Replace('#', '').Trim()
+                    $currentVolume.items += @{
+                        id = $id
+                        title = $title
+                        path = "sa/$subDir/$id.md"
+                    }
+                }
+            }
+            if ($currentVolume.items.Count -gt 0) { $manifest += $currentVolume }
+        }
+
+        # 生成 JSON
+        $manifest | ConvertTo-Json -Depth 10 | Out-File "manifest.json" -Encoding utf8
+
+    - name: Commit and Push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add manifest.json
+        git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update manifest.json" && git push)
