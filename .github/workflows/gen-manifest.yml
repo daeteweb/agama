@@ -5,7 +5,11 @@ on:
     branches:
       - main
     paths:
+      # 當這四個阿含經資料夾有更新時，都會自動觸發生成
       - 'suttas/sa/**'
+      - 'suttas/da/**'
+      - 'suttas/ma/**'
+      - 'suttas/ea/**'
   workflow_dispatch:
 
 env:
@@ -22,7 +26,12 @@ jobs:
     - name: Run Generator
       shell: pwsh
       run: |
-        $volumeRanges = @(
+        # ══════════════════════════════════════
+        # 1. 各部阿含經的分卷配置範圍 (可自由修改)
+        # ══════════════════════════════════════
+        
+        # --- 雜阿含經 (sa) 卷期定義 ---
+        $saVolumeRanges = @(
             @{ name = "第 01 卷 (五陰相應)"; start = 1; end = 32 },
             @{ name = "第 02 卷 (五陰相應)"; start = 33; end = 58 },
             @{ name = "第 03 卷 (五陰相應)"; start = 59; end = 87 },
@@ -75,55 +84,138 @@ jobs:
             @{ name = "第 50 卷 (使相應、道品相應)"; start = 1344; end = 1362 }
         )
 
+        # --- 長阿含經 (da) 卷期定義 ---
+        $daVolumeRanges = @(
+            # 共 30 經，這裡採用傳統「四分」來做分期模板，你可以自行調整
+            @{ name = "第一分 (1 - 4 經)"; start = 1; end = 7 },
+            @{ name = "第二分 (5 - 19 經)"; start = 8; end = 22 },
+            @{ name = "第三分 (20 - 29 經)"; start = 23; end = 32 },
+            @{ name = "第四分 (30 經)"; start = 33; end = 44 }
+        )
+
+        # --- 中阿含經 (ma) 卷期定義 ---
+        $maVolumeRanges = @(
+            # 共 222 經，預設以 50 經為一期，你可以解除註解或自由修改
+            @{ name = "第一期 (1 - 50 經)"; start = 1; end = 50 },
+            @{ name = "第二期 (51 - 100 經)"; start = 51; end = 100 }
+            # @{ name = "第三期 (101 - 150 經)"; start = 101; end = 150 },
+            # @{ name = "第四期 (151 - 200 經)"; start = 151; end = 200 },
+            # @{ name = "第五期 (201 - 222 經)"; start = 201; end = 222 }
+        )
+
+        # --- 增一阿含經 (ea) 卷期定義 ---
+        $eaVolumeRanges = @(
+            # 共 472 經，預設以 50 經為一期，你可以解除註解或自由修改
+            @{ name = "第一期 (1 - 50 經)"; start = 1; end = 50 },
+            @{ name = "第二期 (51 - 100 經)"; start = 51; end = 100 }
+            # @{ name = "第三期 (101 - 150 經)"; start = 101; end = 150 },
+            # @{ name = "第四期 (151 - 200 經)"; start = 151; end = 200 },
+            # @{ name = "第五期 (201 - 250 經)"; start = 201; end = 250 },
+            # @{ name = "第六期 (251 - 300 經)"; start = 251; end = 300 },
+            # @{ name = "第七期 (301 - 350 經)"; start = 301; end = 350 },
+            # @{ name = "第八期 (351 - 400 經)"; start = 351; end = 400 },
+            # @{ name = "第九期 (401 - 450 經)"; start = 401; end = 450 },
+            # @{ name = "第十期 (451 - 472 經)"; start = 451; end = 472 }
+        )
+
+        # ══════════════════════════════════════
+        # 2. 核心主迴圈 (整併四部阿含經)
+        # ══════════════════════════════════════
         $manifest = @()
-        $sidebarMd = "* [🏠 首頁](README.md)`n`n* **雜阿含經**`n"
+        $sidebarMd = "* [🏠 首頁](README.md)`n`n"
 
-        foreach ($vol in $volumeRanges) {
-            $currentVolume = @{ volume_name = $vol.name; items = @() }
-            $hasItems = $false
-            $volMd = "  * **$($vol.name)**`n"
+        $agamaConfigs = @(
+            @{
+                code = "sa"
+                name = "雜阿含經"
+                ranges = $saVolumeRanges
+                flat = $false  # 只有雜阿含需要拆 v01/v02/v03
+            },
+            @{
+                code = "da"
+                name = "長阿含經"
+                ranges = $daVolumeRanges
+                flat = $true   # 單一資料夾
+            },
+            @{
+                code = "ma"
+                name = "中阿含經"
+                ranges = $maVolumeRanges
+                flat = $true   # 單一資料夾
+            },
+            @{
+                code = "ea"
+                name = "增一阿含經"
+                ranges = $eaVolumeRanges
+                flat = $true   # 單一資料夾
+            }
+        )
 
-            foreach ($i in $vol.start..$vol.end) {
-                $id = "sa" + $i.ToString("0000")
-                
-                if ($i -le 500) { $subDir = "v01" }
-                elseif ($i -le 1000) { $subDir = "v02" }
-                else { $subDir = "v03" }
+        foreach ($config in $agamaConfigs) {
+            $prefix = $config.code
+            $volMd = "* **$($config.name)**`n"
+            $hasAgamaItems = $false
 
-                $filePath = "suttas/sa/$subDir/$id.md"
+            foreach ($vol in $config.ranges) {
+                # 將卷期名稱與阿含名稱結合，確保 manifest 不會有名稱衝突
+                $currentVolume = @{ volume_name = "$($config.name) $($vol.name)"; items = @() }
+                $hasItems = $false
+                $subVolMd = "  * **$($vol.name)**`n"
 
-                if (Test-Path $filePath) {
-                    $hasItems = $true
+                foreach ($i in $vol.start..$vol.end) {
+                    # 補滿四位數，例如 da0001, ma0015, ea0230
+                    $id = $prefix + $i.ToString("0000")
                     
-                    # 預設標題 (萬一檔案完全空白時會用到)
-                    $title = "雜阿含經 第 $i 經 <待修訂>"
-                    
-                    # 安全讀取檔案內容防呆
-                    $content = Get-Content $filePath -Encoding utf8 -TotalCount 5
-                    if ($null -ne $content) {
-                        $firstLine = $content | Select-Object -First 1
-                        if ($null -ne $firstLine -and ![string]::IsNullOrWhiteSpace($firstLine)) {
-                            $title = $firstLine.Replace('#', '').Trim()
+                    if ($config.flat) {
+                        # 扁平架構直接指向 suttas/da/da0001.md
+                        $filePath = "suttas/$prefix/$id.md"
+                    } else {
+                        # 雜阿含繼續走舊有的分資料夾邏輯
+                        if ($i -le 500) { $subDir = "v01" }
+                        elseif ($i -le 1000) { $subDir = "v02" }
+                        else { $subDir = "v03" }
+                        $filePath = "suttas/$prefix/$subDir/$id.md"
+                    }
+
+                    if (Test-Path $filePath) {
+                        $hasItems = $true
+                        $hasAgamaItems = $true
+                        
+                        # 預設標題 (萬一檔案完全空白時會用到)
+                        $title = "$($config.name) 第 $i 經 <待修訂>"
+                        
+                        # 安全讀取檔案內容防呆並抓取首行做標題
+                        $content = Get-Content $filePath -Encoding utf8 -TotalCount 5
+                        if ($null -ne $content) {
+                            $firstLine = $content | Select-Object -First 1
+                            if ($null -ne $firstLine -and ![string]::IsNullOrWhiteSpace($firstLine)) {
+                                $title = $firstLine.Replace('#', '').Trim()
+                            }
                         }
+                        
+                        $currentVolume.items += @{
+                            id = $id
+                            title = $title
+                            path = $filePath
+                        }
+                        
+                        $subVolMd += "    * [$title]($filePath)`n"
                     }
-                    
-                    $currentVolume.items += @{
-                        id = $id
-                        title = $title
-                        path = $filePath
-                    }
-                    
-                    $volMd += "    * [$title]($filePath)`n"
+                }
+                if ($hasItems) { 
+                    $manifest += $currentVolume 
+                    $volMd += $subVolMd
                 }
             }
-            if ($hasItems) { 
-                $manifest += $currentVolume 
-                $sidebarMd += $volMd
+            if ($hasAgamaItems) {
+                $sidebarMd += $volMd + "`n"
+            } else {
+                # 如果該部阿含經目前還沒有任何翻譯檔案，預設顯示整理中
+                $sidebarMd += "* **$($config.name)**`n  * (整理中...)`n`n"
             }
         }
-        
-        $sidebarMd += "`n* **中阿含經**`n  * (整理中...)`n`n* **長阿含經**`n  * (整理中...)`n"
 
+        # 3. 匯出檔案
         $json = $manifest | ConvertTo-Json -Depth 10
         [System.IO.File]::WriteAllText("$pwd/manifest.json", $json, [System.Text.Encoding]::UTF8)
         [System.IO.File]::WriteAllText("$pwd/_sidebar.md", $sidebarMd, [System.Text.Encoding]::UTF8)
@@ -133,4 +225,4 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add manifest.json _sidebar.md
-        git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update manifest.json and sidebar" && git push)
+        git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update manifest and sidebar with multi-agama support" && git push)
