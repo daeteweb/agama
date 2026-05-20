@@ -87,10 +87,10 @@ jobs:
         # --- 長阿含經 (da) 卷期定義 ---
         $daVolumeRanges = @(
             # 共 30 經，這裡採用傳統「四分」來做分期模板，你可以自行調整
-            @{ name = "第一分 "; start = 1; end = 7 },
-            @{ name = "第二分 "; start = 8; end = 22 },
-            @{ name = "第三分 "; start = 23; end = 32 },
-            @{ name = "第四分 "; start = 33; end = 44 }
+            @{ name = "第一分"; start = 1; end = 7 },
+            @{ name = "第二分"; start = 8; end = 22 },
+            @{ name = "第三分"; start = 23; end = 32 },
+            @{ name = "第四分"; start = 33; end = 44 }
         )
 
         # --- 中阿含經 (ma) 卷期定義 ---
