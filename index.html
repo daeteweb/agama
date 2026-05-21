@@ -10,8 +10,7 @@
 
   <style>
     /* ══════════════════════════════════════
-       全域色彩變數 — 完全保留原始金色主題
-       僅調整 ### (h3) 為淡水藍色
+       全域色彩變數
     ══════════════════════════════════════ */
     :root {
       --background:      #000000;
@@ -28,18 +27,11 @@
       color: var(--base-color) !important;
     }
     body { background-color: var(--background); }
-    
-    /* 原本標題預設為白色，但 h3 需改為淡水藍色 */
     h1, h2, h3, h4, h5, h6, .markdown-section h1, .markdown-section h2,
     .markdown-section h3, .markdown-section h4 { color: #ffffff !important; }
-    
-    /* 🔹 重點：僅將 ### (即 h3) 改為淡水藍色，保留其他所有金色元素 🔹 */
-    .markdown-section h3 {
-      color: #6bc8ff !important;   /* 清新淡水藍 */
-      font-weight: 500;
-      letter-spacing: 0.3px;
-    }
-    
+	h3, h3 span, .markdown-section h3, .markdown-section h3 span {
+	color: #80daeb !important; /* 您可以更換成喜歡的水藍色代碼，例如 #80daeb 或 #87ceeb */
+	}
     strong, .markdown-section strong { color: #ffffff !important; }
     a, .markdown-section a { color: #c8a84b !important; }
     a:hover, .markdown-section a:hover { color: #d4af37 !important; }
@@ -105,7 +97,7 @@
     }
 
     /* ══════════════════════════════════════
-       自訂左側邊緣跳色直線與開關按鈕 (金色)
+       自訂左側邊緣跳色直線與開關按鈕
     ══════════════════════════════════════ */
     .edge-line {
       position: fixed; top: 0; bottom: 0; left: 0; width: 4px;
@@ -126,7 +118,7 @@
     body.my-sidebar-closed .my-toggle-btn { left: 4px; }
 
     /* ══════════════════════════════════════
-       浮動標籤導航列 (段落跳轉) — 保持金色按鈕風格
+       浮動標籤導航列 (段落跳轉)
     ══════════════════════════════════════ */
     .floating-toc {
       position: sticky; top: 0; z-index: 150;
@@ -145,7 +137,7 @@
     }
 
     /* ══════════════════════════════════════
-       底部工具列排版細節 (金色主題)
+       底部工具列排版細節
     ══════════════════════════════════════ */
     .markdown-section { font-size: var(--base-font-size) !important; padding-bottom: calc(var(--toolbar-height) + 24px) !important; }
     .bottom-toolbar {
@@ -284,6 +276,7 @@
         data.forEach(vol => {
           if (vol.items) {
             vol.items.forEach(item => {
+              // 精準解析 JSON 裡的路徑
               const clean = item.path.replace(/^\.?\//, '').replace(/\.md$/, '');
               paths.push(clean);
             });
