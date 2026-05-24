@@ -193,7 +193,7 @@
     * [雜阿含經 第 183 經](suttas/sa/v01/sa0183.md)
     * [雜阿含經 第 184 經](suttas/sa/v01/sa0184.md)
     * [雜阿含經 第 185 經](suttas/sa/v01/sa0185.md)
-    * [雜阿含經 第 186 經 <待修訂>](suttas/sa/v01/sa0186.md)
+    * [雜阿含經 第 186 經](suttas/sa/v01/sa0186.md)
     * [雜阿含經 第 187 經](suttas/sa/v01/sa0187.md)
   * **第 08 卷 (六入處相應)**
     * [雜阿含經 第 188 經](suttas/sa/v01/sa0188.md)
@@ -208,7 +208,7 @@
     * [雜阿含經 第 197 經](suttas/sa/v01/sa0197.md)
     * [雜阿含經 第 198 經](suttas/sa/v01/sa0198.md)
     * [雜阿含經 第 199 經](suttas/sa/v01/sa0199.md)
-    * [雜阿含經 第 200 經 <待修訂>](suttas/sa/v01/sa0200.md)
+    * [雜阿含經 第 200 經](suttas/sa/v01/sa0200.md)
     * [雜阿含經 第 201 經](suttas/sa/v01/sa0201.md)
     * [雜阿含經 第 202 經](suttas/sa/v01/sa0202.md)
     * [雜阿含經 第 203 經](suttas/sa/v01/sa0203.md)
