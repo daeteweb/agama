@@ -77,12 +77,20 @@
     if ('scrollRestoration' in history) history.scrollRestoration='manual';
     let scrollTimers=[];
     function scrollToTop() {
+      // iOS Safari 已知 bug（WebKit Bugzilla #304489，2025/12 回報，截至目前尚未修復）：
+      // 當目前捲動位置仍落在某個 position:sticky 元素的範圍內時，window.scrollTo(0,0) / scrollTop=0 會被直接忽略。
+      // 本頁的 #floating-toc（章節快速跳轉列）就是 position:sticky，讀者往下捲動閱讀後它會「吸附」在頂端，
+      // 此時點「上一篇／下一篇」觸發的捲動就會被 iOS Safari 靜默吃掉。
+      // 解法：捲動前先暫時把它從 sticky 解除，捲動後下一影格再還原，繞過這個判斷條件。
+      const toc=document.getElementById('floating-toc');
+      if (toc) toc.style.position='static';
       const targets=[document.scrollingElement, document.documentElement, document.body, document.querySelector('.content'), document.querySelector('.main')].filter(Boolean);
       targets.forEach(target => {
         try { target.scrollTop=0; } catch (e) {}
         if (typeof target.scrollTo === 'function') { try { target.scrollTo({top:0,left:0,behavior:'auto'}); } catch (e) { target.scrollTo(0,0); } }
       });
       try { window.scrollTo({top:0,left:0,behavior:'auto'}); } catch (e) { window.scrollTo(0,0); }
+      if (toc) requestAnimationFrame(() => { toc.style.position=''; });
     }
     function scheduleScrollToTop() {
       scrollTimers.forEach(clearTimeout); scrollTimers=[];
@@ -110,7 +118,14 @@
           scheduleScrollToTop();
         });
       }],
-      search:{maxAge:86400000,paths:'auto',placeholder:'搜尋經文...',noData:'找不到結果',depth:6},
+      // maxAge 從 1 天拉長到 30 天：paths:'auto' 模式在索引「過期」時會重新抓取側邊欄裡
+      // 每一個 md 檔來建立全文索引，章節數量一多，這就是首次（或索引過期後）開啟變慢的主因。
+      // 拉長快取時間，能讓回訪讀者在 30 天內都直接使用瀏覽器裡已建好的索引，不必重新整站爬一次。
+      // （新讀者的第一次造訪，或使用無痕視窗，仍會付出一次完整建索引的時間——這是 docsify
+      // 全文搜尋外掛本身的設計限制，若想連第一次造訪都加速，需要在 CI 階段預先產生索引檔，
+      // 頁面載入時直接把它寫進 localStorage 讓外掛判斷成「已有有效快取」而略過爬取，
+      // 如果你要做這一步我可以再協助寫產生索引的腳本。）
+      search:{maxAge:2592000000,paths:'auto',placeholder:'搜尋經文...',noData:'找不到結果',depth:6},
       tabs:{persist:true,sync:false,theme:'classic',tabComments:true,tabHeadings:true}
     };
 
