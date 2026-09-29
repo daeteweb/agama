@@ -195,12 +195,23 @@
       document.getElementById('my-toggle-btn').innerHTML = '▶';
     }
 
+    // ════════════════════════════════════════
+    // 穩定的滾動函數（適配手機和電腦）
+    // ════════════════════════════════════════
+    function scrollToTop() {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      const mainContent = document.querySelector('.content');
+      if (mainContent) mainContent.scrollTop = 0;
+      window.scrollTo(0, 0);
+    }
+
     window.$docsify = {
       name: '《阿含經》白話計畫',
       loadSidebar: true,
       alias: { '/.*/_sidebar.md': '/_sidebar.md' },
       subMaxLevel: 2,
-      auto2top: true,
+      auto2top: false,
       markdown: { gfm: true, breaks: true },
       plugins: [
         function(hook, vm) {
@@ -208,14 +219,13 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
           hook.doneEach(function() {
-            // 滾到頁面頂端 - 使用單一穩定的方法
-            setTimeout(() => {
-              document.documentElement.scrollTop = 0;
-              document.body.scrollTop = 0;
-              const mainContent = document.querySelector('.content');
-              if (mainContent) mainContent.scrollTop = 0;
-              window.scrollTo(0, 0);
-            }, 100);
+            // 【重點修正】多次延遲滾動，確保 DOM 已完全渲染
+            // 第1次：100ms - 初步滾動
+            setTimeout(scrollToTop, 100);
+            // 第2次：300ms - 確認滾動（適應複雜頁面）
+            setTimeout(scrollToTop, 300);
+            // 第3次：600ms - 最終滾動（保險）
+            setTimeout(scrollToTop, 600);
 
             // 自動產生浮動標籤按鈕 (抓取所有 h3)
             const h3s = document.querySelectorAll('.markdown-section h3');
@@ -261,7 +271,7 @@
     }
 
     // ════════════════════════════════════════
-    // 改善：在頁面載入時立即預先取得 manifest.json
+    // 導航邏輯：預先載入 manifest.json
     // ════════════════════════════════════════
     let _sidebarPaths = null; 
     let _manifestPromise = null;
@@ -330,16 +340,12 @@
       }
     }
 
+    // 【重點修正】hashchange 事件的滾動邏輯改強化
     window.addEventListener('hashchange', () => { 
-      // 不重置 _sidebarPaths，讓它保持在記憶體中
-      // 只在必要時重新fetch
-      setTimeout(() => {
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-        const mainContent = document.querySelector('.content');
-        if (mainContent) mainContent.scrollTop = 0;
-        window.scrollTo(0, 0);
-      }, 50);
+      // 連續多次滾動，適應不同設備
+      scrollToTop();
+      setTimeout(scrollToTop, 100);
+      setTimeout(scrollToTop, 250);
     });
 
     // 頁面載入完成後，立即預先載入 manifest.json
