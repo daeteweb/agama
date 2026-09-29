@@ -5,355 +5,150 @@
   <title>《阿含經》白話計畫</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-
   <link rel="stylesheet" href="lib/themes/vue.css">
-
   <style>
-    /* ══════════════════════════════════════
-       全域色彩變數
-    ══════════════════════════════════════ */
-    :root {
-      --background:      #000000;
-      --base-color:      #b59a4d;
-      --theme-color:     #d4af37;
-      --base-font-size:  18px;
-      --toolbar-height:  52px;
-      --my-sidebar-width: 300px;
-    }
-
-    body, .markdown-section, .markdown-section p, .markdown-section li,
-    .markdown-section td, .markdown-section th, .markdown-section blockquote,
-    .markdown-section blockquote p, .content, p, li, td, th, span, label {
-      color: var(--base-color) !important;
-    }
-    body { background-color: var(--background); }
-    h1, h2, h3, h4, h5, h6, .markdown-section h1, .markdown-section h2,
-    .markdown-section h3, .markdown-section h4 { color: #ffffff !important; }
-	h3, h3 span, .markdown-section h3, .markdown-section h3 span {
-	color: #80daeb !important; /* 您可以更換成喜歡的水藍色代碼，例如 #80daeb 或 #87ceeb */
-	}
-    strong, .markdown-section strong { color: #ffffff !important; }
-    a, .markdown-section a { color: #c8a84b !important; }
-    a:hover, .markdown-section a:hover { color: #d4af37 !important; }
-    .markdown-section code, .markdown-section pre code { color: #e0c97a !important; background: #111 !important; }
-    .markdown-section pre { background: #111 !important; }
-    
-    .search input { background: #111 !important; color: var(--base-color) !important; border: 1px solid #333 !important; }
-    .search input::placeholder { color: #555 !important; }
-    .search .results-panel { background: #0d0d0d !important; border: 1px solid #333 !important; }
-    .search .results-panel a { border-bottom: 1px solid #222 !important; }
-    .search .results-panel .matching-post h2 { color: #ffffff !important; }
-    .search .results-panel .matching-post p { color: var(--base-color) !important; }
-
-    .docsify-tabs__tab { background: #111 !important; color: #777 !important; border: 1px solid #222 !important; }
-    .docsify-tabs__tab--active { background: #000 !important; color: #d4af37 !important; border-bottom: 2px solid #d4af37 !important; }
-    .docsify-tabs__content { background: #0a0a0a !important; border: 1px solid #222 !important; color: var(--base-color) !important; }
-
-    .markdown-section table tr { background: #0d0d0d !important; border-top: 1px solid #333 !important; }
-    .markdown-section table tr:nth-child(2n) { background: #111 !important; }
-    .markdown-section table th, .markdown-section table td { border: 1px solid #333 !important; }
-    .markdown-section blockquote { border-left: 4px solid #d4af37 !important; background: #0d0d0d !important; }
-
-    /* ══════════════════════════════════════
-       徹底廢除 Docsify 預設側邊欄行為
-    ══════════════════════════════════════ */
-    .sidebar-toggle { display: none !important; }
-
-    .sidebar {
-      position: fixed !important;
-      top: 0 !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      width: var(--my-sidebar-width) !important;
-      z-index: 1000 !important;
-      background-color: #0a0a0a !important;
-      border-right: 1px solid #222 !important;
-      transform: translateX(0) !important;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-    body.my-sidebar-closed .sidebar { transform: translateX(calc(-1 * var(--my-sidebar-width))) !important; }
-    .sidebar-nav li a, .sidebar-nav li span, .sidebar ul li a { color: var(--base-color) !important; }
-    .sidebar-nav li.active > a, .sidebar-nav li > a.active { color: #d4af37 !important; border-right: 2px solid #d4af37; }
-    .app-name, .app-name a { color: #d4af37 !important; }
-
-    .content {
-      position: absolute !important;
-      top: 0 !important;
-      right: 0 !important;
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-    .bottom-toolbar { transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
-
-    @media screen and (min-width: 769px) {
-      body .content { left: var(--my-sidebar-width) !important; }
-      body.my-sidebar-closed .content { left: 0 !important; }
-      body .bottom-toolbar { left: var(--my-sidebar-width) !important; }
-      body.my-sidebar-closed .bottom-toolbar { left: 0 !important; }
-    }
-    @media screen and (max-width: 768px) {
-      body .content { left: 0 !important; width: 100% !important; padding-left: 20px !important; }
-      body .bottom-toolbar { left: 0 !important; padding: 0 10px !important; gap: 4px !important; }
-      .bottom-toolbar button { padding: 6px 8px !important; font-size: 12px !important; }
-    }
-
-    /* ══════════════════════════════════════
-       自訂左側邊緣跳色直線與開關按鈕
-    ══════════════════════════════════════ */
-    .edge-line {
-      position: fixed; top: 0; bottom: 0; left: 0; width: 4px;
-      background-color: var(--theme-color); z-index: 998;
-    }
-    .my-toggle-btn {
-      position: fixed; top: 20%; transform: translateY(-50%);
-      left: var(--my-sidebar-width); width: 25px; height: 45px;
-      background-color: var(--theme-color); color: #000;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: bold; cursor: pointer;
-      z-index: 1001; border-radius: 0 6px 6px 0;
-      box-shadow: 3px 0 8px rgba(0,0,0,0.6);
-      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
-      user-select: none;
-    }
-    .my-toggle-btn:active { background-color: #e6c552; }
-    body.my-sidebar-closed .my-toggle-btn { left: 4px; }
-
-    /* ══════════════════════════════════════
-       浮動標籤導航列 (段落跳轉)
-    ══════════════════════════════════════ */
-    .floating-toc {
-      position: sticky; top: 0; z-index: 150;
-      display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0;
-      background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(8px);
-      border-bottom: 1px solid #333; margin-bottom: 24px; margin-top: -15px; 
-    }
-    .floating-toc button {
-      background: #1a1a1a; color: var(--theme-color); border: 1px solid #3a3a3a;
-      padding: 6px 14px; border-radius: 20px; font-size: 14px;
-      cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
-    }
-    .floating-toc button:hover { background: var(--theme-color); color: #000; }
-    .markdown-section h1, .markdown-section h2, .markdown-section h3, .markdown-section h4 {
-      scroll-margin-top: 70px !important;
-    }
-
-    /* ══════════════════════════════════════
-       底部工具列排版細節
-    ══════════════════════════════════════ */
-    .markdown-section { font-size: var(--base-font-size) !important; padding-bottom: calc(var(--toolbar-height) + 24px) !important; }
-    .bottom-toolbar {
-      position: fixed; bottom: 0; right: 0; height: var(--toolbar-height); z-index: 200;
-      display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
-      background: rgba(8, 8, 8, 0.97); border-top: 1px solid #2a2a2a; backdrop-filter: blur(6px);
-      box-sizing: border-box; gap: 8px;
-    }
-    .toolbar-nav, .toolbar-font { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-    .bottom-toolbar button {
-      background: #1a1a1a; color: #d4af37; border: 1px solid #3a3a3a;
-      padding: 6px 12px; cursor: pointer; border-radius: 4px; font-size: 13px;
-      transition: background 0.15s, color 0.15s; white-space: nowrap; flex-shrink: 0;
-    }
-    .bottom-toolbar button:hover { background: #d4af37; color: #000; border-color: #d4af37; }
-
-    .sidebar-nav li:not(.collapse) > .section-link:after { content: '▼'; font-size: 10px; margin-left: 5px; color: var(--theme-color); }
-    .sidebar-nav li.collapse > .section-link:after { content: '▶'; color: var(--base-color); }
+    :root { --background:#000000; --base-color:#b59a4d; --theme-color:#d4af37; --base-font-size:18px; --toolbar-height:52px; --my-sidebar-width:300px; }
+    html { scroll-behavior:auto !important; }
+    body, .markdown-section, .markdown-section p, .markdown-section li, .markdown-section td, .markdown-section th, .markdown-section blockquote, .markdown-section blockquote p, .content, p, li, td, th, span, label { color:var(--base-color) !important; }
+    body { background-color:var(--background); }
+    h1,h2,h3,h4,h5,h6,.markdown-section h1,.markdown-section h2,.markdown-section h3,.markdown-section h4 { color:#fff !important; }
+    h3,h3 span,.markdown-section h3,.markdown-section h3 span { color:#80daeb !important; }
+    strong,.markdown-section strong { color:#fff !important; }
+    a,.markdown-section a { color:#c8a84b !important; }
+    a:hover,.markdown-section a:hover { color:#d4af37 !important; }
+    .markdown-section code,.markdown-section pre code { color:#e0c97a !important; background:#111 !important; }
+    .markdown-section pre { background:#111 !important; }
+    .search input { background:#111 !important; color:var(--base-color) !important; border:1px solid #333 !important; }
+    .search input::placeholder { color:#555 !important; }
+    .search .results-panel { background:#0d0d0d !important; border:1px solid #333 !important; }
+    .search .results-panel a { border-bottom:1px solid #222 !important; }
+    .search .results-panel .matching-post h2 { color:#fff !important; }
+    .search .results-panel .matching-post p { color:var(--base-color) !important; }
+    .docsify-tabs__tab { background:#111 !important; color:#777 !important; border:1px solid #222 !important; }
+    .docsify-tabs__tab--active { background:#000 !important; color:#d4af37 !important; border-bottom:2px solid #d4af37 !important; }
+    .docsify-tabs__content { background:#0a0a0a !important; border:1px solid #222 !important; color:var(--base-color) !important; }
+    .markdown-section table tr { background:#0d0d0d !important; border-top:1px solid #333 !important; }
+    .markdown-section table tr:nth-child(2n) { background:#111 !important; }
+    .markdown-section table th,.markdown-section table td { border:1px solid #333 !important; }
+    .markdown-section blockquote { border-left:4px solid #d4af37 !important; background:#0d0d0d !important; }
+    .sidebar-toggle { display:none !important; }
+    .sidebar { position:fixed !important; top:0 !important; bottom:0 !important; left:0 !important; width:var(--my-sidebar-width) !important; z-index:1000 !important; background-color:#0a0a0a !important; border-right:1px solid #222 !important; transform:translateX(0) !important; transition:transform .3s cubic-bezier(.4,0,.2,1) !important; }
+    body.my-sidebar-closed .sidebar { transform:translateX(calc(-1 * var(--my-sidebar-width))) !important; }
+    .sidebar-nav li a,.sidebar-nav li span,.sidebar ul li a { color:var(--base-color) !important; }
+    .sidebar-nav li.active > a,.sidebar-nav li > a.active { color:#d4af37 !important; border-right:2px solid #d4af37; }
+    .app-name,.app-name a { color:#d4af37 !important; }
+    .content { position:absolute !important; top:0 !important; right:0 !important; transition:left .3s cubic-bezier(.4,0,.2,1) !important; }
+    .bottom-toolbar { transition:left .3s cubic-bezier(.4,0,.2,1) !important; }
+    @media screen and (min-width:769px) { body .content { left:var(--my-sidebar-width) !important; } body.my-sidebar-closed .content { left:0 !important; } body .bottom-toolbar { left:var(--my-sidebar-width) !important; } body.my-sidebar-closed .bottom-toolbar { left:0 !important; } }
+    @media screen and (max-width:768px) { body .content { left:0 !important; width:100% !important; padding-left:20px !important; } body .bottom-toolbar { left:0 !important; padding:0 10px !important; gap:4px !important; } .bottom-toolbar button { padding:6px 8px !important; font-size:12px !important; } }
+    .edge-line { position:fixed; top:0; bottom:0; left:0; width:4px; background-color:var(--theme-color); z-index:998; }
+    .my-toggle-btn { position:fixed; top:20%; transform:translateY(-50%); left:var(--my-sidebar-width); width:25px; height:45px; background-color:var(--theme-color); color:#000; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; cursor:pointer; z-index:1001; border-radius:0 6px 6px 0; box-shadow:3px 0 8px rgba(0,0,0,.6); transition:left .3s cubic-bezier(.4,0,.2,1),background-color .2s; user-select:none; }
+    .my-toggle-btn:active { background-color:#e6c552; } body.my-sidebar-closed .my-toggle-btn { left:4px; }
+    .floating-toc { position:sticky; top:0; z-index:150; display:flex; flex-wrap:wrap; gap:8px; padding:12px 0; background:rgba(0,0,0,.95); backdrop-filter:blur(8px); border-bottom:1px solid #333; margin-bottom:24px; margin-top:-15px; }
+    .floating-toc button { background:#1a1a1a; color:var(--theme-color); border:1px solid #3a3a3a; padding:6px 14px; border-radius:20px; font-size:14px; cursor:pointer; transition:all .2s ease; white-space:nowrap; }
+    .floating-toc button:hover { background:var(--theme-color); color:#000; }
+    .markdown-section h1,.markdown-section h2,.markdown-section h3,.markdown-section h4 { scroll-margin-top:70px !important; }
+    .markdown-section { font-size:var(--base-font-size) !important; padding-bottom:calc(var(--toolbar-height) + 24px) !important; }
+    .bottom-toolbar { position:fixed; bottom:0; right:0; height:var(--toolbar-height); z-index:200; display:flex; align-items:center; justify-content:space-between; padding:0 20px; background:rgba(8,8,8,.97); border-top:1px solid #2a2a2a; backdrop-filter:blur(6px); box-sizing:border-box; gap:8px; }
+    .toolbar-nav,.toolbar-font { display:flex; gap:6px; align-items:center; flex-shrink:0; }
+    .bottom-toolbar button { background:#1a1a1a; color:#d4af37; border:1px solid #3a3a3a; padding:6px 12px; cursor:pointer; border-radius:4px; font-size:13px; transition:background .15s,color .15s; white-space:nowrap; flex-shrink:0; }
+    .bottom-toolbar button:hover { background:#d4af37; color:#000; border-color:#d4af37; }
+    .sidebar-nav li:not(.collapse) > .section-link:after { content:'▼'; font-size:10px; margin-left:5px; color:var(--theme-color); }
+    .sidebar-nav li.collapse > .section-link:after { content:'▶'; color:var(--base-color); }
   </style>
 </head>
 <body>
-
   <div class="edge-line"></div>
   <div id="my-toggle-btn" class="my-toggle-btn" onclick="toggleMySidebar()">◀</div>
-
   <div id="app">載入中...</div>
-
   <div class="bottom-toolbar">
-    <div class="toolbar-nav">
-      <button onclick="goPrevPage()" title="上一篇">◀ 上一篇</button>
-      <button onclick="goNextPage()" title="下一篇">下一篇 ▶</button>
-    </div>
-    <div class="toolbar-font">
-      <button onclick="changeFontSize(-2)" title="縮小文字">A−</button>
-      <button onclick="resetFontSize()"    title="重置字體">重置</button>
-      <button onclick="changeFontSize(2)"  title="放大文字">A+</button>
-    </div>
+    <div class="toolbar-nav"><button onclick="goPrevPage()" title="上一篇">◀ 上一篇</button><button onclick="goNextPage()" title="下一篇">下一篇 ▶</button></div>
+    <div class="toolbar-font"><button onclick="changeFontSize(-2)" title="縮小文字">A−</button><button onclick="resetFontSize()" title="重置字體">重置</button><button onclick="changeFontSize(2)" title="放大文字">A+</button></div>
   </div>
-
   <script>
     function toggleMySidebar() {
-      const body = document.body;
-      const btn = document.getElementById('my-toggle-btn');
-      if (body.classList.contains('my-sidebar-closed')) {
-        body.classList.remove('my-sidebar-closed');
-        btn.innerHTML = '◀'; 
-      } else {
-        body.classList.add('my-sidebar-closed');
-        btn.innerHTML = '▶'; 
-      }
+      const body=document.body, btn=document.getElementById('my-toggle-btn');
+      body.classList.toggle('my-sidebar-closed');
+      btn.innerHTML=body.classList.contains('my-sidebar-closed') ? '▶' : '◀';
     }
+    if (window.innerWidth <= 768) { document.body.classList.add('my-sidebar-closed'); document.getElementById('my-toggle-btn').innerHTML='▶'; }
 
-    if (window.innerWidth <= 768) {
-      document.body.classList.add('my-sidebar-closed');
-      document.getElementById('my-toggle-btn').innerHTML = '▶';
-    }
-
-    // ════════════════════════════════════════
-    // 穩定的滾動函數（適配手機和電腦）
-    // ════════════════════════════════════════
+    // Docsify 使用 hash 路由；停用瀏覽器自動恢復舊捲動位置，避免手機覆蓋程式設定。
+    if ('scrollRestoration' in history) history.scrollRestoration='manual';
+    let scrollTimers=[];
     function scrollToTop() {
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      const mainContent = document.querySelector('.content');
-      if (mainContent) mainContent.scrollTop = 0;
-      window.scrollTo(0, 0);
+      const targets=[document.scrollingElement, document.documentElement, document.body, document.querySelector('.content'), document.querySelector('.main')].filter(Boolean);
+      targets.forEach(target => {
+        try { target.scrollTop=0; } catch (e) {}
+        if (typeof target.scrollTo === 'function') { try { target.scrollTo({top:0,left:0,behavior:'auto'}); } catch (e) { target.scrollTo(0,0); } }
+      });
+      try { window.scrollTo({top:0,left:0,behavior:'auto'}); } catch (e) { window.scrollTo(0,0); }
+    }
+    function scheduleScrollToTop() {
+      scrollTimers.forEach(clearTimeout); scrollTimers=[];
+      scrollToTop();
+      let frames=0;
+      function frameScroll() { scrollToTop(); if (++frames < 4) requestAnimationFrame(frameScroll); }
+      requestAnimationFrame(frameScroll);
+      [50,150,300,600,1000].forEach(delay => scrollTimers.push(setTimeout(scrollToTop,delay)));
     }
 
-    window.$docsify = {
-      name: '《阿含經》白話計畫',
-      loadSidebar: true,
-      alias: { '/.*/_sidebar.md': '/_sidebar.md' },
-      subMaxLevel: 2,
-      auto2top: false,
-      markdown: { gfm: true, breaks: true },
-      plugins: [
-        function(hook, vm) {
-          hook.beforeEach(function(content) {
-            return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
-          });
-          hook.doneEach(function() {
-            // 【重點修正】多次延遲滾動，確保 DOM 已完全渲染
-            // 第1次：100ms - 初步滾動
-            setTimeout(scrollToTop, 100);
-            // 第2次：300ms - 確認滾動（適應複雜頁面）
-            setTimeout(scrollToTop, 300);
-            // 第3次：600ms - 最終滾動（保險）
-            setTimeout(scrollToTop, 600);
-
-            // 自動產生浮動標籤按鈕 (抓取所有 h3)
-            const h3s = document.querySelectorAll('.markdown-section h3');
-            if (h3s.length > 0) {
-              const oldToc = document.getElementById('floating-toc');
-              if (oldToc) oldToc.remove();
-
-              const tocContainer = document.createElement('div');
-              tocContainer.id = 'floating-toc';
-              tocContainer.className = 'floating-toc';
-
-              h3s.forEach(h3 => {
-                const btn = document.createElement('button');
-                btn.innerText = h3.innerText.replace(/#/g, '').trim();
-                btn.onclick = () => { h3.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
-                tocContainer.appendChild(btn);
-              });
-
-              const markdownSection = document.querySelector('.markdown-section');
-              markdownSection.insertBefore(tocContainer, markdownSection.firstChild);
-            }
-          });
-        }
-      ],
-      search: { maxAge: 86400000, paths: 'auto', placeholder: '搜尋經文...', noData: '找不到結果', depth: 6 },
-      tabs: { persist: true, sync: false, theme: 'classic', tabComments: true, tabHeadings: true }
+    window.$docsify={
+      name:'《阿含經》白話計畫', loadSidebar:true, alias:{'/.*/_sidebar.md':'/_sidebar.md'}, subMaxLevel:2, auto2top:false,
+      markdown:{gfm:true,breaks:true},
+      plugins:[function(hook,vm) {
+        hook.beforeEach(function(content) { return content.replace(/\*\*([^*\n]+?)\*\*/g,'<strong>$1</strong>'); });
+        hook.doneEach(function() {
+          const oldToc=document.getElementById('floating-toc'); if (oldToc) oldToc.remove();
+          const h3s=document.querySelectorAll('.markdown-section h3');
+          if (h3s.length) {
+            const toc=document.createElement('div'); toc.id='floating-toc'; toc.className='floating-toc';
+            h3s.forEach(h3 => { const btn=document.createElement('button'); btn.innerText=h3.innerText.replace(/#/g,'').trim(); btn.onclick=()=>h3.scrollIntoView({behavior:'smooth',block:'start'}); toc.appendChild(btn); });
+            const section=document.querySelector('.markdown-section'); if (section) section.insertBefore(toc,section.firstChild);
+          }
+          // 必須在 Docsify 插入新 HTML 後才執行，並以多個 frame 應付手機重排。
+          scheduleScrollToTop();
+        });
+      }],
+      search:{maxAge:86400000,paths:'auto',placeholder:'搜尋經文...',noData:'找不到結果',depth:6},
+      tabs:{persist:true,sync:false,theme:'classic',tabComments:true,tabHeadings:true}
     };
 
-    let currentSize = parseInt(localStorage.getItem('agama-font-size')) || 18;
+    let currentSize=parseInt(localStorage.getItem('agama-font-size')) || 18;
     applyFontSize(currentSize);
-    function changeFontSize(delta) {
-      currentSize = Math.min(40, Math.max(12, currentSize + delta));
-      applyFontSize(currentSize);
-      localStorage.setItem('agama-font-size', currentSize);
-    }
-    function resetFontSize() {
-      currentSize = 18;
-      applyFontSize(currentSize);
-      localStorage.removeItem('agama-font-size');
-    }
-    function applyFontSize(size) {
-      document.documentElement.style.setProperty('--base-font-size', size + 'px');
-    }
+    function changeFontSize(delta) { currentSize=Math.min(40,Math.max(12,currentSize+delta)); applyFontSize(currentSize); localStorage.setItem('agama-font-size',currentSize); }
+    function resetFontSize() { currentSize=18; applyFontSize(currentSize); localStorage.removeItem('agama-font-size'); }
+    function applyFontSize(size) { document.documentElement.style.setProperty('--base-font-size',size+'px'); }
 
-    // ════════════════════════════════════════
-    // 導航邏輯：預先載入 manifest.json
-    // ════════════════════════════════════════
-    let _sidebarPaths = null; 
-    let _manifestPromise = null;
-
+    let _sidebarPaths=null, _manifestPromise=null;
     async function fetchSidebarPaths() {
-      // 如果已經有暫存，直接返回
       if (_sidebarPaths) return _sidebarPaths;
-      
-      // 如果正在fetch，等待同一個promise
-      if (!_manifestPromise) {
-        _manifestPromise = (async () => {
-          try {
-            const res = await fetch('manifest.json');
-            if (!res.ok) throw new Error('fetch failed');
-            const data = await res.json();
-
-            const paths = [];
-            data.forEach(vol => {
-              if (vol.items) {
-                vol.items.forEach(item => {
-                  // 精準解析 JSON 裡的路徑
-                  const clean = item.path.replace(/^\.?\//, '').replace(/\.md$/, '');
-                  paths.push(clean);
-                });
-              }
-            });
-            _sidebarPaths = paths;
-            return paths;
-          } catch (e) {
-            console.warn('無法讀取 manifest.json', e);
-            return [];
-          }
-        })();
-      }
-
+      if (!_manifestPromise) _manifestPromise=(async()=>{
+        try {
+          const res=await fetch('manifest.json'); if (!res.ok) throw new Error('fetch failed');
+          const data=await res.json(), paths=[];
+          data.forEach(vol => (vol.items || []).forEach(item => paths.push(item.path.replace(/^\.?\//,'').replace(/\.md$/,''))));
+          _sidebarPaths=paths; return paths;
+        } catch (e) { console.warn('無法讀取 manifest.json',e); return []; }
+      })();
       return await _manifestPromise;
     }
-
-    function getCurrentPath() {
-      return location.hash.replace(/^#\//, '').replace(/\.md$/, '');
-    }
-
+    function getCurrentPath() { return location.hash.replace(/^#\//,'').replace(/\.md$/,''); }
     async function goNextPage() {
-      const paths = await fetchSidebarPaths();
-      const current = getCurrentPath();
-      const idx = paths.indexOf(current);
-      if (idx !== -1 && idx < paths.length - 1) {
-        location.hash = '#/' + paths[idx + 1];
-      } else if (idx === -1 && paths.length > 0) {
-        location.hash = '#/' + paths[0]; 
-      } else {
-        alert('已經是最後一篇了！');
-      }
+      const paths=await fetchSidebarPaths(), idx=paths.indexOf(getCurrentPath());
+      if (idx !== -1 && idx < paths.length-1) location.hash='#/'+paths[idx+1];
+      else if (idx === -1 && paths.length) location.hash='#/'+paths[0];
+      else alert('已經是最後一篇了！');
     }
-
     async function goPrevPage() {
-      const paths = await fetchSidebarPaths();
-      const current = getCurrentPath();
-      const idx = paths.indexOf(current);
-      if (idx > 0) {
-        location.hash = '#/' + paths[idx - 1];
-      } else if (idx === -1 && paths.length > 0) {
-        location.hash = '#/' + paths[0]; 
-      } else {
-        alert('已經是第一篇了！');
-      }
+      const paths=await fetchSidebarPaths(), idx=paths.indexOf(getCurrentPath());
+      if (idx > 0) location.hash='#/'+paths[idx-1];
+      else if (idx === -1 && paths.length) location.hash='#/'+paths[0];
+      else alert('已經是第一篇了！');
     }
-
-    // 【重點修正】hashchange 事件的滾動邏輯改強化
-    window.addEventListener('hashchange', () => { 
-      // 連續多次滾動，適應不同設備
-      scrollToTop();
-      setTimeout(scrollToTop, 100);
-      setTimeout(scrollToTop, 250);
-    });
-
-    // 頁面載入完成後，立即預先載入 manifest.json
-    window.addEventListener('load', () => {
-      fetchSidebarPaths();
-    });
+    window.addEventListener('hashchange',scheduleScrollToTop);
+    window.addEventListener('load',()=>{ fetchSidebarPaths(); scheduleScrollToTop(); });
   </script>
-
   <script src="lib/docsify.min.js"></script>
   <script src="lib/plugins/search.min.js"></script>
   <script src="lib/plugins/docsify-tabs.min.js"></script>
