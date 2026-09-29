@@ -208,18 +208,14 @@
             return content.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
           });
           hook.doneEach(function() {
+            // 滾到頁面頂端 - 使用單一穩定的方法
             setTimeout(() => {
-              window.scrollTo(0, 0);
-              document.body.scrollTop = 0;
               document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
               const mainContent = document.querySelector('.content');
               if (mainContent) mainContent.scrollTop = 0;
-            }, 50);
-            setTimeout(() => {
               window.scrollTo(0, 0);
-              document.body.scrollTop = 0;
-              document.documentElement.scrollTop = 0;
-            }, 300);
+            }, 100);
 
             // 自動產生浮動標籤按鈕 (抓取所有 h3)
             const h3s = document.querySelectorAll('.markdown-section h3');
@@ -264,30 +260,44 @@
       document.documentElement.style.setProperty('--base-font-size', size + 'px');
     }
 
+    // ════════════════════════════════════════
+    // 改善：在頁面載入時立即預先取得 manifest.json
+    // ════════════════════════════════════════
     let _sidebarPaths = null; 
-    async function fetchSidebarPaths() {
-      if (_sidebarPaths) return _sidebarPaths;
-      try {
-        const res = await fetch('manifest.json');
-        if (!res.ok) throw new Error('fetch failed');
-        const data = await res.json();
+    let _manifestPromise = null;
 
-        const paths = [];
-        data.forEach(vol => {
-          if (vol.items) {
-            vol.items.forEach(item => {
-              // 精準解析 JSON 裡的路徑
-              const clean = item.path.replace(/^\.?\//, '').replace(/\.md$/, '');
-              paths.push(clean);
+    async function fetchSidebarPaths() {
+      // 如果已經有暫存，直接返回
+      if (_sidebarPaths) return _sidebarPaths;
+      
+      // 如果正在fetch，等待同一個promise
+      if (!_manifestPromise) {
+        _manifestPromise = (async () => {
+          try {
+            const res = await fetch('manifest.json');
+            if (!res.ok) throw new Error('fetch failed');
+            const data = await res.json();
+
+            const paths = [];
+            data.forEach(vol => {
+              if (vol.items) {
+                vol.items.forEach(item => {
+                  // 精準解析 JSON 裡的路徑
+                  const clean = item.path.replace(/^\.?\//, '').replace(/\.md$/, '');
+                  paths.push(clean);
+                });
+              }
             });
+            _sidebarPaths = paths;
+            return paths;
+          } catch (e) {
+            console.warn('無法讀取 manifest.json', e);
+            return [];
           }
-        });
-        _sidebarPaths = paths;
-        return paths;
-      } catch (e) {
-        console.warn('無法讀取 manifest.json', e);
-        return [];
+        })();
       }
+
+      return await _manifestPromise;
     }
 
     function getCurrentPath() {
@@ -321,12 +331,20 @@
     }
 
     window.addEventListener('hashchange', () => { 
-      _sidebarPaths = null; 
+      // 不重置 _sidebarPaths，讓它保持在記憶體中
+      // 只在必要時重新fetch
       setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        const mainContent = document.querySelector('.content');
+        if (mainContent) mainContent.scrollTop = 0;
+        window.scrollTo(0, 0);
       }, 50);
+    });
+
+    // 頁面載入完成後，立即預先載入 manifest.json
+    window.addEventListener('load', () => {
+      fetchSidebarPaths();
     });
   </script>
 
